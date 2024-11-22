@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions } from 'react-native';
-import { LiveKitRoom, useTracks, VideoTrack, isTrackReference, RoomAudioRenderer } from '@livekit/react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, Dimensions, StatusBar } from 'react-native';
+import Orientation from 'react-native-orientation-locker';
+import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
 import BackArrow from '../../components/backArrow';
 import axiosInstance from '../../apis';
@@ -14,12 +15,22 @@ const MatchStream = ({ route, navigation }) => {
   const [token, setToken] = useState(null);
   const [match, setMatch] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isConnected, setIsConnected] = useState(false); // Track connection status
-  const videoContainerRef = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [roomInstance, setRoomInstance] = useState(null);
 
-  // Cleanup when unmounting the component
+  // Lock to landscape and hide status bar on mount
+  useEffect(() => {
+    StatusBar.setHidden(true);
+    Orientation.lockToLandscape();
+
+    return () => {
+      StatusBar.setHidden(false);
+      Orientation.unlockAllOrientations();
+    };
+  }, []);
+
+  // Fetch match and token
   useEffect(() => {
     const fetchMatchAndToken = async () => {
       try {
@@ -37,25 +48,28 @@ const MatchStream = ({ route, navigation }) => {
     };
 
     fetchMatchAndToken();
-
-    // Cleanup function for when navigating away from this component
-    return () => {
-      // Ensure the LiveKit connection is properly cleaned up
-      setToken(null);  // Clear token on unmount
-      setMatch(null);  // Clear match data
-      setIsConnected(false); // Reset connection state
-      console.log('Disconnected from LiveKit server (cleanup)');
-    };
   }, [matchId]);
 
-  const handleConnected = () => {
+  // Handle LiveKit connection
+  const handleConnected = (room) => {
     setIsConnected(true);
-    console.log('Connected to LiveKit server');
+    setRoomInstance(room);
+    console.log('Connected to LiveKit server', room);
   };
 
   const handleDisconnected = () => {
     setIsConnected(false);
+    setRoomInstance(null);
     console.log('Disconnected from LiveKit server');
+  };
+
+  // Toggle audio mute/unmute
+  const toggleAudioMute = () => {
+    if (roomInstance?.localParticipant) {
+      const isCurrentlyMuted = !isAudioMuted;
+      roomInstance.localParticipant.setMicrophoneEnabled(isCurrentlyMuted);
+      setIsAudioMuted(isCurrentlyMuted);
+    }
   };
 
   if (isLoading) {
@@ -75,74 +89,119 @@ const MatchStream = ({ route, navigation }) => {
   }
 
   return (
-    <>
-      <BackArrow navigation={navigation} colorChange={Color.primaryBlue} />
-      <Text style={[styles.matchTitle, { fontSize: 24, color: Color.primaryBlue, textAlign: 'center' }]}>
-        {match.homeTeam} vs {match.awayTeam}
-      </Text>
+    <View style={styles.fullScreenContainer}>
       <LiveKitRoom
         serverUrl={livekitServerUrl}
         token={token}
         connect={true}
         options={{
-          adaptiveStream: { pixelDensity: 'screen' },
+          adaptiveStream: true,
+          dynacast: true,
+          publishDefaults: {
+            simulcast: true,
+            videoCodec: 'h264',
+          },
+          videoCaptureDefaults: {
+            resolution: { width: 1920, height: 1080 },
+          },
         }}
-        audio={true}
-        video={true}
         onConnected={handleConnected}
         onDisconnected={handleDisconnected}
       >
+        <View style={styles.headerOverlay}>
+          <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
+        </View>
+        
         <RoomView isConnected={isConnected} />
+        
+        <View style={styles.muteButtonContainer}>
+          <Button
+            title={isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}
+            onPress={toggleAudioMute}
+            color={Color.primaryBlue}
+          />
+        </View>
       </LiveKitRoom>
-    </>
+    </View>
   );
 };
 
+// RoomView component (same as before)
 const RoomView = ({ isConnected }) => {
-  const tracks = useTracks(
-    [{ source: Track.Source.ScreenShare, withPlaceholder: false }],
-    { onlySubscribed: false },
-  );
+  const tracks = useTracks([
+    { source: Track.Source.Camera },
+    { source: Track.Source.ScreenShare },
+    { source: Track.Source.Microphone },
+  ]);
 
   const renderTrack = ({ item }) => {
-    if (isTrackReference(item)) {
-      return <VideoTrack trackRef={item} style={styles.participantView} />;
-    } else {
-      return <View style={styles.participantView} />;
+    if (isTrackReference(item) && (item.publication?.kind === 'video' || item.source === Track.Source.ScreenShare)) {
+      return (
+        <View style={styles.videoContainer}>
+          <VideoTrack 
+            trackRef={item} 
+            style={styles.fullscreenVideo}
+            objectFit="cover"
+          />
+        </View>
+      );
     }
+    return null;
   };
+
+  if (!isConnected) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Connecting to stream...</Text>
+      </View>
+    );
+  }
+
+  if (tracks.length === 0) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Waiting for video stream...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {isConnected ? (
-        <FlatList 
-          data={tracks} 
-          renderItem={renderTrack}
-          contentContainerStyle={styles.flatListContainer} 
-        />
-      ) : (
-        <Text style={styles.errorText}>Waiting for connection...</Text>
-      )}
+      <FlatList
+        data={tracks}
+        renderItem={renderTrack}
+        keyExtractor={(item, index) => `${item?.participant?.identity}-${index}`}
+        contentContainerStyle={styles.flatListContainer}
+        scrollEnabled={false}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  fullScreenContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    padding: 5,
+    zIndex: 2,
+  },
   container: {
     flex: 1,
-    alignItems: 'stretch',
+    backgroundColor: '#000',
+  },
+  centerContainer: {
+    flex: 1,
     justifyContent: 'center',
   },
-  flatListContainer: {
-    paddingHorizontal: 10,
-  },
-  participantView: {
-    height: 200,
-    width: Dimensions.get('window').width - 20, // Full width minus padding
-    marginVertical: 10,
-  },
-  matchTitle: {
-    marginBottom: 20,
+  fullscreenVideo: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
   loaderContainer: {
     flex: 1,
@@ -159,7 +218,13 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
+  },
+  muteButtonContainer: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    zIndex: 2,
   },
 });
-
 export default MatchStream;

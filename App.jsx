@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+/* import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Login from './Screens/Login';
@@ -15,7 +15,7 @@ import FIcons from 'react-native-vector-icons/Foundation'
 import IIcons from 'react-native-vector-icons/Ionicons'
 import FA6cons from 'react-native-vector-icons/FontAwesome6'
 import OctiIcons from 'react-native-vector-icons/Octicons'
-import EntypoIcons from 'react-native-vector-icons/Entypo'
+import EntypoIcons from 'react-native-vector-icons/Entypo' */
 import { Provider } from 'react-redux';
 import store from './src/store';
 import Navigation from './src/routes/navigation';
