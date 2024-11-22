@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, Dimensions, StatusBar, PanResponder } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
-import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
+import { LiveKitRoom, useTracks, VideoTrack, isTrackReference, registerGlobals } from '@livekit/react-native';
 import { Track } from 'livekit-client';
 import BackArrow from '../../components/backArrow';
 import axiosInstance from '../../apis';
 import apiRoutes from '../../apis/apiRoutes';
 import { Color } from '../../theme/colors';
+
+registerGlobals();
 
 const livekitServerUrl = 'wss://firstball-ge9m4mmg.livekit.cloud';
 
@@ -16,21 +18,44 @@ const MatchStream = ({ route, navigation }) => {
   const [match, setMatch] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  // const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [roomInstance, setRoomInstance] = useState(null);
   const [liveMatches, setLiveMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [shouldConnect, setShouldConnect] = useState(true);
 
   // Lock to landscape and hide status bar on mount
   useEffect(() => {
     StatusBar.setHidden(true);
     Orientation.lockToLandscape();
 
+    // Clean up function
     return () => {
       StatusBar.setHidden(false);
       Orientation.unlockAllOrientations();
+      
+      // Ensure proper cleanup of LiveKit connection
+      if (roomInstance) {
+        setShouldConnect(false);
+        // roomInstance.disconnect();
+      }
     };
-  }, []);
+  }, [roomInstance]);
+
+  // Add navigation listener for cleanup
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (roomInstance) {
+        setShouldConnect(false);
+        setMatch(null);
+        setToken(null);
+        setLiveMatches([]);
+        // roomInstance.disconnect();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, roomInstance]);
 
   // Fetch live matches
   const getLiveMatches = async () => {
@@ -103,15 +128,6 @@ const MatchStream = ({ route, navigation }) => {
     console.log('Disconnected from LiveKit server');
   };
 
-  // Toggle audio mute/unmute
-  const toggleAudioMute = () => {
-    if (roomInstance?.localParticipant) {
-      const isCurrentlyMuted = !isAudioMuted;
-      roomInstance.localParticipant.setMicrophoneEnabled(isCurrentlyMuted);
-      setIsAudioMuted(isCurrentlyMuted);
-    }
-  };
-
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -145,8 +161,8 @@ const MatchStream = ({ route, navigation }) => {
             resolution: { width: 1920, height: 1080 },
           },
         }}
-        onConnected={handleConnected}
-        onDisconnected={handleDisconnected}
+        // onConnected={handleConnected}
+        // onDisconnected={handleDisconnected}
       >
         <View style={styles.headerOverlay}>
           <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
@@ -154,13 +170,6 @@ const MatchStream = ({ route, navigation }) => {
         
         <RoomView isConnected={isConnected} />
         
-        <View style={styles.muteButtonContainer}>
-          <Button
-            title={isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}
-            onPress={toggleAudioMute}
-            color={Color.primaryBlue}
-          />
-        </View>
       </LiveKitRoom>
     </View>
   );
@@ -189,13 +198,13 @@ const RoomView = ({ isConnected }) => {
     return null;
   };
 
-  if (!isConnected) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Connecting to stream...</Text>
-      </View>
-    );
-  }
+  // if (!isConnected) {
+  //   return (
+  //     <View style={styles.centerContainer}>
+  //       <Text style={styles.errorText}>Connecting to stream...</Text>
+  //     </View>
+  //   );
+  // }
 
   if (tracks.length === 0) {
     return (
