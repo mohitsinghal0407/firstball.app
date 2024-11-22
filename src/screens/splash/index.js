@@ -27,11 +27,11 @@ const Splash = (props) => {
 	return (
 		<>
 			<Container>
-				{/* <Image
+				<Image
 					source={splashScreen.genieLogo}
 					resizeMode="contain"
 					style={{ alignSelf: "center" }}
-				/> */}
+				/>
 				<View style={style.appName}>
 					<Text style={CommonStyle.appHeading}>First Ball</Text>
 				</View>
@@ -43,7 +43,7 @@ const Splash = (props) => {
 			</Container>
 			<View style={style.createdBy}>
 				<Text style={style.createdText}> Created by </Text>
-				<Text style={style.createdText}> First Ball </Text>
+				<Text style={style.createdText}> First Ball LLC</Text>
 			</View>
 		</>
 	);
