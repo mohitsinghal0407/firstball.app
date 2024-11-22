@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, Dimensions, StatusBar, PanResponder } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
@@ -18,6 +18,8 @@ const MatchStream = ({ route, navigation }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [roomInstance, setRoomInstance] = useState(null);
+  const [liveMatches, setLiveMatches] = useState([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
   // Lock to landscape and hide status bar on mount
   useEffect(() => {
@@ -30,24 +32,62 @@ const MatchStream = ({ route, navigation }) => {
     };
   }, []);
 
-  // Fetch match and token
-  useEffect(() => {
-    const fetchMatchAndToken = async () => {
-      try {
-        setIsLoading(true);
-        const { data: streamData } = await axiosInstance.get(`${apiRoutes.matchStream}/${matchId}`);
-        setToken(streamData.stream);
-
-        const { data: matchData } = await axiosInstance.get(`${apiRoutes.matchDetails}/${matchId}`);
-        setMatch(matchData.match);
-      } catch (error) {
-        console.error('Error fetching match or stream data:', error);
-      } finally {
-        setIsLoading(false);
+  // Fetch live matches
+  const getLiveMatches = async () => {
+    try {
+      const response = await axiosInstance.get(apiRoutes.matches);
+      if (response.data.success) {
+        const live = response.data.matches.filter(
+          (match) => match.status === "live"
+        );
+        setLiveMatches(live);
+        const initialIndex = live.findIndex(match => match._id === matchId);
+        setCurrentMatchIndex(initialIndex >= 0 ? initialIndex : 0);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+    }
+  };
 
-    fetchMatchAndToken();
+  // Pan Responder for swipe gestures
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (evt, gestureState) => {
+      return Math.abs(gestureState.dx) > 50;
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      if (gestureState.dx < -100 && currentMatchIndex < liveMatches.length - 1) {
+        // Swipe left - next match
+        const nextIndex = currentMatchIndex + 1;
+        setCurrentMatchIndex(nextIndex);
+        fetchMatchAndToken(liveMatches[nextIndex]._id);
+      } else if (gestureState.dx > 100 && currentMatchIndex > 0) {
+        // Swipe right - previous match
+        const prevIndex = currentMatchIndex - 1;
+        setCurrentMatchIndex(prevIndex);
+        fetchMatchAndToken(liveMatches[prevIndex]._id);
+      }
+    },
+  });
+
+  // Fetch match and token
+  const fetchMatchAndToken = async (matchId) => {
+    try {
+      setIsLoading(true);
+      const { data: streamData } = await axiosInstance.get(`${apiRoutes.matchStream}/${matchId}`);
+      setToken(streamData.stream);
+
+      const { data: matchData } = await axiosInstance.get(`${apiRoutes.matchDetails}/${matchId}`);
+      setMatch(matchData.match);
+    } catch (error) {
+      console.error('Error fetching match or stream data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getLiveMatches();
+    fetchMatchAndToken(matchId);
   }, [matchId]);
 
   // Handle LiveKit connection
@@ -89,7 +129,7 @@ const MatchStream = ({ route, navigation }) => {
   }
 
   return (
-    <View style={styles.fullScreenContainer}>
+    <View style={styles.fullScreenContainer} {...panResponder.panHandlers}>
       <LiveKitRoom
         serverUrl={livekitServerUrl}
         token={token}

@@ -4,6 +4,8 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import AppButton from "../../../components/appButton";
 import MainContainer from "../../../components/mainContainer";
@@ -25,6 +27,7 @@ const UserProfile = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [liveMatches, setLiveMatches] = useState([]);
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const logoutApp = async () => {
     setIsLoading(true);
@@ -59,6 +62,17 @@ const UserProfile = ({ navigation, route }) => {
     const user_info = await AsyncStorage.getItem("user_info");
     setUserInfo(JSON.parse(user_info));
   };
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await getLiveMatches();
+    } catch (error) {
+      console.error("Error refreshing matches:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
     getUserInfo();
@@ -158,6 +172,14 @@ const UserProfile = ({ navigation, route }) => {
             CommonStyle.topSpacing,
             { paddingHorizontal: 15 }
           ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Color.primaryBlue]}
+              tintColor={Color.primaryBlue}
+            />
+          }
         >
           <Text
             style={[
