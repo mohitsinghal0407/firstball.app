@@ -1,0 +1,19 @@
+export class Fonts {
+	static black = "Nunito-Black";
+	static blackItalic = "Nunito-BlackItalic";
+	static bold = "Nunito-Bold";
+	static boldItalic = "Nunito-BoldItalic";
+	static extraBold = "Nunito-ExtraBold";
+	static extraBoldItalic = "Nunito-ExtraBoldItalic";
+	static extraLight = "Nunito-ExtraLight";
+	static extraLightItalic = "Nunito-ExtraLightItalic";
+	static italic = "Nunito-Italic";
+	static light = "Nunito-Light";
+	static lightItalic = "Nunito-LightItalic";
+	static medium = "Nunito-Medium";
+	static regular = "Nunito-Regular";
+	static semiBold = "Nunito-SemiBold";
+	static semiBoldItalic = "Nunito-SemiBoldItalic";
+	static heavyItalic = "NunitoHeavy-Italic";
+	static heavyRegular = "NunitoHeavy-Regular";
+}
