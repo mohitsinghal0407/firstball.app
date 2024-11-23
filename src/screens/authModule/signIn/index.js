@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import {
     View,
@@ -41,16 +40,22 @@ const SignIn = ({ navigation }) => {
         mode: 'mobile'
     });
     const [errors, setErrors] = useState({});
-    const [touched, setTouched] = useState({});
+
+    const validateField = (name, value) => {
+        if (!value) {
+            return 'This field is required.';
+        }
+        return '';
+    };
 
     const validateForm = () => {
         let newErrors = {};
-        if (!formData.username) {
-            newErrors.username = 'This field is required.';
-        }
-        if (!formData.password) {
-            newErrors.password = 'This field is required.';
-        }
+        Object.keys(formData).forEach(key => {
+            if (key !== 'mode') {
+                const error = validateField(key, formData[key]);
+                if (error) newErrors[key] = error;
+            }
+        });
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -60,9 +65,12 @@ const SignIn = ({ navigation }) => {
             ...prev,
             [name]: value
         }));
-        setTouched(prev => ({
+        
+        // Validate field on change
+        const error = validateField(name, value);
+        setErrors(prev => ({
             ...prev,
-            [name]: true
+            [name]: error
         }));
     };
 
@@ -94,10 +102,11 @@ const SignIn = ({ navigation }) => {
                 await AsyncStorage.setItem("access_token", response.data.token);
                 checkTokenAndNavigate();
             } else {
-                setIsOpen(true);
+                showErrorMessage("Invalid login credentials");
             }
         } catch (error) {
             console.error("Login error:", error);
+            showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);
         } finally {
             setIsLoading(false);
         }
@@ -123,7 +132,7 @@ const SignIn = ({ navigation }) => {
                     <View style={{ paddingHorizontal: dynamicSize(5, 1) }}>
                         <View>
                             <View>
-                                {touched.username && errors.username && (
+                                {errors.username && (
                                     <Text style={CommonStyle.errorMsg}>
                                         {errors.username}
                                     </Text>
@@ -133,13 +142,13 @@ const SignIn = ({ navigation }) => {
                                 placeholder={"username"}
                                 changeBorderColor={{
                                     borderColor:
-                                        touched.username && errors.username
+                                        errors.username
                                             ? Color.primaryPink
                                             : null,
                                     borderWidth:
-                                        touched.username && errors.username ? 1 : null,
+                                        errors.username ? 1 : null,
                                     marginTop:
-                                        touched.username && errors.username
+                                        errors.username
                                             ? dynamicSize(0)
                                             : dynamicSize(20, 1),
                                 }}
@@ -155,7 +164,7 @@ const SignIn = ({ navigation }) => {
                                 }
                             />
                         </View>
-                        {touched.password && errors.password && (
+                        {errors.password && (
                             <Text style={CommonStyle.errorMsg}>
                                 {errors.password}
                             </Text>
@@ -166,13 +175,13 @@ const SignIn = ({ navigation }) => {
                             onChangeText={(value) => handleChange("password", value)}
                             changeBorderColor={{
                                 borderColor:
-                                    touched.password && errors.password
+                                    errors.password
                                         ? Color.primaryPink
                                         : null,
                                 borderWidth:
-                                    touched.password && errors.password ? 1 : null,
+                                    errors.password ? 1 : null,
                                 marginTop:
-                                    touched.password && errors.password
+                                    errors.password
                                         ? dynamicSize(0)
                                         : dynamicSize(20, 1),
                             }}
@@ -185,12 +194,6 @@ const SignIn = ({ navigation }) => {
                         />
                     </View>
 				</MainContainer>  
-            )}
-            {isOpen && (
-                <View style={styles.errorModal}>
-                    <Text style={styles.errorText}>Invalid login details. Please try again.</Text>
-                    <AppButton title="Retry" onPress={() => setIsOpen(false)} />
-                </View>
             )}
         </>
     );
