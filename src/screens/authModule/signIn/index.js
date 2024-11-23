@@ -100,7 +100,7 @@ const SignIn = ({ navigation }) => {
                 await AsyncStorage.setItem("access_token", response.data.token);
                 checkTokenAndNavigate();
             } else {
-                showErrorMessage("Invalid login credentials");
+                showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);
             }
         } catch (error) {
             showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);

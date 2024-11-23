@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions, StatusBar, PanResponder } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
@@ -6,7 +6,7 @@ import { Track } from 'livekit-client';
 import BackArrow from '../../../components/backArrow';
 import axiosInstance from '../../../apis';
 import apiRoutes from '../../../apis/apiRoutes';
-import { Color } from '../../../theme/colors';
+import { showErrorMessage } from '../../../utils/helpers';
 
 const livekitServerUrl = 'wss://firstball-ge9m4mmg.livekit.cloud';
 
@@ -19,7 +19,6 @@ const MatchStream = ({ route, navigation }) => {
   const [roomInstance, setRoomInstance] = useState(null);
   const [liveMatches, setLiveMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [shouldConnect, setShouldConnect] = useState(true);
   const [windowDimensions, setWindowDimensions] = useState(Dimensions.get('window'));
 
   // Lock to landscape and hide status bar on mount
@@ -34,17 +33,18 @@ const MatchStream = ({ route, navigation }) => {
 
       // Ensure proper cleanup of LiveKit connection
       if (roomInstance) {
-        setShouldConnect(false);
-        // roomInstance.disconnect();
+        roomInstance.disconnect();
+        setRoomInstance(null);
       }
     };
-  }, [roomInstance]);
+  }, []);
 
   // Add navigation listener for cleanup
   useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
       if (roomInstance) {
-        setShouldConnect(false);
+        roomInstance.disconnect();
+        setRoomInstance(null);
         setMatch(null);
         setToken(null);
         setLiveMatches([]);
@@ -67,7 +67,7 @@ const MatchStream = ({ route, navigation }) => {
         setCurrentMatchIndex(initialIndex >= 0 ? initialIndex : 0);
       }
     } catch (error) {
-      console.error('Error fetching matches:', error);
+      showErrorMessage(`Live Matches! ${error?.message ? error.message : 'Something went wrong.'}`);
     }
   };
 
@@ -96,9 +96,9 @@ const MatchStream = ({ route, navigation }) => {
     try {
       setIsLoading(true);
       const { data: streamData } = await axiosInstance.get(`${apiRoutes.matchStream}/${matchId}`);
-      setToken(streamData.stream);
-
       const { data: matchData } = await axiosInstance.get(`${apiRoutes.matchDetails}/${matchId}`);
+      
+      setToken(streamData.stream);
       setMatch(matchData.match);
     } catch (error) {
       console.error('Error fetching match or stream data:', error);
@@ -110,33 +110,35 @@ const MatchStream = ({ route, navigation }) => {
   useEffect(() => {
     getLiveMatches();
     fetchMatchAndToken(matchId);
+
+    return () => {
+      if (roomInstance) {
+        roomInstance.disconnect();
+      }
+    };
   }, [matchId]);
 
   // Handle LiveKit connection
   const handleConnected = (room) => {
     setIsConnected(true);
     setRoomInstance(room);
-    console.log('Connected to LiveKit server', room);
   };
 
   const handleDisconnected = () => {
     setIsConnected(false);
     setRoomInstance(null);
-    console.log('Disconnected from LiveKit server');
   };
 
-  // Ensure that the layout is updated when the dimensions change
+  // Handle dimension changes
   useEffect(() => {
     const onChange = ({ window }) => {
       setWindowDimensions(window);
     };
 
-    // Add event listener for dimension changes
-    Dimensions.addEventListener('change', onChange);
+    const subscription = Dimensions.addEventListener('change', onChange);
 
-    // Clean up event listener on component unmount or when the effect is rerun
     return () => {
-      Dimensions.removeEventListener('change', onChange);
+      subscription.remove();
     };
   }, []);
 
@@ -188,7 +190,6 @@ const MatchStream = ({ route, navigation }) => {
   );
 };
 
-// RoomView component (same as before)
 const RoomView = ({ isConnected, windowDimensions }) => {
   const tracks = useTracks([
     { source: Track.Source.Camera },
@@ -221,6 +222,7 @@ const RoomView = ({ isConnected, windowDimensions }) => {
       </View>
     );
   }
+
   return (
     <View style={styles.container}>
       <FlatList

@@ -11,7 +11,7 @@ import AppButton from "../../../components/appButton";
 import MainContainer from "../../../components/mainContainer";
 import { Color } from "../../../theme/colors";
 import { CommonStyle } from "../../../theme/style";
-import { dynamicSize } from "../../../utils/helpers";
+import { dynamicSize, showErrorMessage } from "../../../utils/helpers";
 import PopupCard from "../../../components/popupCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CommonActions } from "@react-navigation/native";
@@ -50,11 +50,10 @@ const MatchList = ({ navigation, route }) => {
         );
         setLiveMatches(live);
       } else {
-        setError("Failed to fetch live matches.");
+        showErrorMessage(`Live Matches! ${error?.message ? error.message : 'Something went wrong.'}`);
       }
     } catch (error) {
-      setError("Error fetching matches.");
-      console.log("Error fetching matches:", error);
+      showErrorMessage(`Live Matches! ${error?.message ? error.message : 'Something went wrong.'}`);
     }
   };
 
@@ -68,7 +67,7 @@ const MatchList = ({ navigation, route }) => {
     try {
       await getLiveMatches();
     } catch (error) {
-      console.error("Error refreshing matches:", error);
+      showErrorMessage(`Matches Refresh! ${error?.message ? error.message : 'Something went wrong.'}`);
     } finally {
       setRefreshing(false);
     }
