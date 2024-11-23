@@ -20,6 +20,7 @@ import axiosInstance from "../../../apis";
 import apiRoutes from "../../../apis/apiRoutes";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import style from "./style";
+import UpcomingMatchCard from "../../../components/match/upcomingMatchCard";
 
 const MatchList = ({ navigation, route }) => {
   const [exitModal, setExitModal] = useState(false);
@@ -28,6 +29,22 @@ const MatchList = ({ navigation, route }) => {
   const [liveMatches, setLiveMatches] = useState([]);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const calculateTimeLeft = () => {
+    if (!userInfo?.expiresAt) return { years: 0, months: 0, days: 0 };
+    
+    const now = new Date();
+    const expiryDate = new Date(userInfo.expiresAt);
+    const diffTime = expiryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const totalMonths = Math.floor(diffDays / 30);
+    const years = Math.floor(totalMonths / 12);
+    const months = totalMonths % 12;
+    const days = diffDays % 30;
+    
+    return { years, months, days };
+  };
 
   const logoutApp = async () => {
     setIsLoading(true);
@@ -84,9 +101,9 @@ const MatchList = ({ navigation, route }) => {
       style={[
         CommonStyle.card,
         {
-          marginBottom: 15,
-          padding: 20,
-          borderRadius: 12,
+          marginBottom: 4,
+          padding: 8,
+          borderRadius: 6,
           backgroundColor: "#F8FAFF",
           borderWidth: 1,
           borderColor: Color.primaryBlue + "20",
@@ -94,33 +111,25 @@ const MatchList = ({ navigation, route }) => {
       ]}
       onPress={() => navigation.navigate("MatchStream", { matchId: item._id })}
     >
-      <Text
-        style={[
-          CommonStyle.title,
-          { color: Color.primaryBlue, fontSize: 18, marginBottom: 8 },
-        ]}
-      >
-        {item.series}
-      </Text>
       <View
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          marginVertical: 10,
-          paddingVertical: 8,
-          borderTopWidth: 1,
-          borderBottomWidth: 1,
+          marginVertical: 2,
+          paddingVertical: 2,
+          borderTopWidth: 0.5,
+          borderBottomWidth: 0.5,
           borderColor: Color.primaryBlue + "10",
         }}
       >
         <View style={{ flex: 1 }}>
           <Text 
             style={{ 
-              color: Color.primaryBlue, 
-              fontSize: 16, 
-              fontWeight: "500",
-              marginRight: 10
+              color: Color.primaryBlue,
+              fontSize: 14,
+              fontWeight: "600",
+              marginRight: 6
             }}
             numberOfLines={1}
           >
@@ -130,13 +139,13 @@ const MatchList = ({ navigation, route }) => {
         <View
           style={{
             backgroundColor: Color.primaryPink,
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 20,
+            paddingHorizontal: 8,
+            paddingVertical: 2,
+            borderRadius: 12,
           }}
         >
-          <Text style={{ color: Color.white, fontWeight: "600" }}>
-            LIVE NOW
+          <Text style={{ color: Color.white, fontWeight: "600", fontSize: 12 }}>
+            Watch Now
           </Text>
         </View>
       </View>
@@ -144,24 +153,14 @@ const MatchList = ({ navigation, route }) => {
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
-          marginTop: 5,
+          marginTop: 2,
         }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons name="location-outline" size={16} color={Color.primaryBlue} />
-          <Text style={{ marginLeft: 5, color: Color.primaryBlue }}>
-            {item.venue}
-          </Text>
-        </View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons name="calendar-outline" size={16} color={Color.primaryBlue} />
-          <Text style={{ marginLeft: 5, color: Color.primaryBlue }}>
-            {new Date(item.startTime).toLocaleDateString()}
-          </Text>
-        </View>
       </View>
     </TouchableOpacity>
   );
+
+  const timeLeft = calculateTimeLeft();
 
   return (
     <>
@@ -169,7 +168,7 @@ const MatchList = ({ navigation, route }) => {
         <ScrollView 
           contentContainerStyle={[
             CommonStyle.topSpacing,
-            { paddingHorizontal: 15 }
+            { paddingHorizontal: 10 }
           ]}
           refreshControl={
             <RefreshControl
@@ -184,8 +183,8 @@ const MatchList = ({ navigation, route }) => {
             style={[
               CommonStyle.title,
               {
-                marginBottom: 20,
-                fontSize: 24,
+                marginBottom: 15,
+                fontSize: 22,
                 color: Color.primaryBlue,
                 textAlign: "center",
               },
@@ -198,9 +197,9 @@ const MatchList = ({ navigation, route }) => {
             <View
               style={{
                 backgroundColor: Color.danger + "20",
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 15,
+                padding: 8,
+                borderRadius: 6,
+                marginBottom: 10,
               }}
             >
               <Text style={{ color: Color.danger, textAlign: "center" }}>
@@ -214,22 +213,53 @@ const MatchList = ({ navigation, route }) => {
           ) : (
             <View
               style={{
-                padding: 20,
+                padding: 15,
                 alignItems: "center",
                 backgroundColor: Color.white,
-                borderRadius: 12,
+                borderRadius: 10,
                 borderWidth: 1,
                 borderColor: Color.primaryBlue + "20",
               }}
             >
-              <Ionicons name="tv-outline" size={40} color={Color.primaryBlue} />
-              <Text style={[CommonStyle.descText, { marginTop: 10 }]}>
+              <Ionicons name="tv-outline" size={35} color={Color.primaryBlue} />
+              <Text style={[CommonStyle.descText, { marginTop: 8 }]}>
                 No live matches at the moment
               </Text>
             </View>
           )}
 
-          <View style={CommonStyle.topSpacing} />
+          <Text style={{
+            textAlign: 'center',
+            color: Color.primaryPink,
+            marginTop: 10,
+            fontSize: 15,
+            fontStyle: 'italic'
+          }}>
+            Hello {userInfo?.fullName || 'Guest'},{'\n'}
+            {timeLeft.years > 0 && `${timeLeft.years} years `}
+            {timeLeft.months > 0 && `${timeLeft.months} months `}
+            {timeLeft.days > 0 && `${timeLeft.days} days `}
+            left in your subscription
+          </Text>
+
+          <Text
+            style={[
+              CommonStyle.title,
+              {
+                marginTop: 20,
+                marginBottom: 15,
+                fontSize: 22,
+                color: Color.primaryBlue,
+                textAlign: "center",
+              },
+            ]}
+          >
+            Upcoming Matches
+          </Text>
+          
+          <UpcomingMatchCard />
+
+          <View style={[CommonStyle.topSpacing, { marginBottom: 10 }]} />
         </ScrollView>
       </MainContainer>
 
@@ -244,8 +274,8 @@ const MatchList = ({ navigation, route }) => {
           style={[
             CommonStyle.headingStyleBar,
             {
-              paddingBottom: dynamicSize(10, 1),
-              paddingHorizontal: dynamicSize(12, 1),
+              paddingBottom: dynamicSize(6, 1),
+              paddingHorizontal: dynamicSize(8, 1),
             },
           ]}
         >
@@ -254,24 +284,26 @@ const MatchList = ({ navigation, route }) => {
               CommonStyle.headingStyleBar,
               {
                 backgroundColor: Color.white,
-                padding: 10,
-                borderRadius: 8,
+                padding: 6,
+                borderRadius: 6,
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: 0.2,
                 shadowRadius: 1.41,
                 elevation: 2,
+                width: '25%',
+                alignSelf: 'flex-end'
               },
             ]}
             onPress={() => setExitModal(!exitModal)}
           >
             <Ionicons
               name="power"
-              size={30}
+              size={20}
               color={Color.primaryBlue}
-              style={{ alignSelf: "flex-end", top: 5 }}
+              style={{ alignSelf: "center" }}
             />
-            <Text style={style.logoutText}>Log Out</Text>
+            <Text style={[style.logoutText, { fontSize: 12 }]}>Log Out</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -279,21 +311,26 @@ const MatchList = ({ navigation, route }) => {
       <PopupCard
         modalContent={
           <View>
-            <Text style={CommonStyle.modalTitle}>
+            <Text style={[CommonStyle.modalTitle, { fontSize: 16 }]}>
               Are you sure you want to {"\n"}Log Out?
             </Text>
-            <View style={CommonStyle.footer}>
+            <View style={[CommonStyle.footer, { marginTop: 15 }]}>
               <View style={{ width: "45%" }}>
                 <AppButton
                   title={"No"}
-                  textStyle={{ color: Color.primaryBlue }}
-                  bgStyle={{ backgroundColor: Color.placeholder }}
+                  textStyle={{ color: Color.primaryBlue, fontSize: 14 }}
+                  bgStyle={{ backgroundColor: Color.placeholder, padding: 8 }}
                   onPress={() => setExitModal(!exitModal)}
                 />
               </View>
               <View style={{ width: "10%" }} />
               <View style={{ width: "45%" }}>
-                <AppButton title={"Yes"} onPress={logoutApp} />
+                <AppButton 
+                  title={"Yes"} 
+                  onPress={logoutApp}
+                  textStyle={{ fontSize: 14 }}
+                  bgStyle={{ padding: 8 }}
+                />
               </View>
             </View>
           </View>

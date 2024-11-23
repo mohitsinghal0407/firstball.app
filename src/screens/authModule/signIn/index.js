@@ -98,6 +98,7 @@ const SignIn = ({ navigation }) => {
 			const response = await axiosInstance.post(apiRoutes.signIn, data);
             if (response.data.success) {
                 await AsyncStorage.setItem("access_token", response.data.token);
+                await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
                 checkTokenAndNavigate();
             } else {
                 showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);
@@ -205,10 +206,6 @@ const styles = StyleSheet.create({
 		padding: dynamicSize(5, 1),
 		marginBottom: dynamicSize(10, 1),
 	},
-	// container: { flex: 1, justifyContent: "center", padding: 16 },
-    // title: { fontSize: 24, fontWeight: "bold", textAlign: "center", marginBottom: 20 },
-    // input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 10 },
-    // errorInput: { borderColor: "red" },
     errorText: { color: "red", fontSize: 12 },
     errorModal: { padding: 20, alignItems: "center", backgroundColor: "#fff" },
 });
