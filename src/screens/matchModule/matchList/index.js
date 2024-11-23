@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import AppButton from "../../../components/appButton";
@@ -15,19 +14,15 @@ import { dynamicSize, showErrorMessage } from "../../../utils/helpers";
 import PopupCard from "../../../components/popupCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CommonActions } from "@react-navigation/native";
-import Processing from "../../processing";
-import axiosInstance from "../../../apis";
-import apiRoutes from "../../../apis/apiRoutes";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import style from "./style";
 import UpcomingMatchCard from "../../../components/match/upcomingMatchCard";
+import LiveMatchCard from "../../../components/match/liveMatchCard";
 
 const MatchList = ({ navigation, route }) => {
   const [exitModal, setExitModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [liveMatches, setLiveMatches] = useState([]);
-  const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const calculateTimeLeft = () => {
@@ -58,22 +53,6 @@ const MatchList = ({ navigation, route }) => {
     });
   };
 
-  const getLiveMatches = async () => {
-    try {
-      const response = await axiosInstance.get(apiRoutes.matches);
-      if (response.data.success) {
-        const live = response.data.matches.filter(
-          (match) => match.status === "live"
-        );
-        setLiveMatches(live);
-      } else {
-        showErrorMessage(`Live Matches! ${error?.message ? error.message : 'Something went wrong.'}`);
-      }
-    } catch (error) {
-      showErrorMessage(`Live Matches! ${error?.message ? error.message : 'Something went wrong.'}`);
-    }
-  };
-
   const getUserInfo = async () => {
     const user_info = await AsyncStorage.getItem("user_info");
     setUserInfo(JSON.parse(user_info));
@@ -82,7 +61,7 @@ const MatchList = ({ navigation, route }) => {
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
-      await getLiveMatches();
+      // Refresh logic handled by LiveMatchCard component
     } catch (error) {
       showErrorMessage(`Matches Refresh! ${error?.message ? error.message : 'Something went wrong.'}`);
     } finally {
@@ -92,73 +71,7 @@ const MatchList = ({ navigation, route }) => {
 
   useEffect(() => {
     getUserInfo();
-    getLiveMatches();
   }, []);
-
-  const renderLiveMatch = (item) => (
-    <TouchableOpacity
-      key={item._id}
-      style={[
-        CommonStyle.card,
-        {
-          marginBottom: 4,
-          padding: 8,
-          borderRadius: 6,
-          backgroundColor: "#F8FAFF",
-          borderWidth: 1,
-          borderColor: Color.primaryBlue + "20",
-        },
-      ]}
-      onPress={() => navigation.navigate("MatchStream", { matchId: item._id })}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginVertical: 2,
-          paddingVertical: 2,
-          borderTopWidth: 0.5,
-          borderBottomWidth: 0.5,
-          borderColor: Color.primaryBlue + "10",
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <Text 
-            style={{ 
-              color: Color.primaryBlue,
-              fontSize: 14,
-              fontWeight: "600",
-              marginRight: 6
-            }}
-            numberOfLines={1}
-          >
-            {item.homeTeam} vs {item.awayTeam}
-          </Text>
-        </View>
-        <View
-          style={{
-            backgroundColor: Color.primaryPink,
-            paddingHorizontal: 8,
-            paddingVertical: 2,
-            borderRadius: 12,
-          }}
-        >
-          <Text style={{ color: Color.white, fontWeight: "600", fontSize: 12 }}>
-            Watch Now
-          </Text>
-        </View>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginTop: 2,
-        }}
-      >
-      </View>
-    </TouchableOpacity>
-  );
 
   const timeLeft = calculateTimeLeft();
 
@@ -193,40 +106,7 @@ const MatchList = ({ navigation, route }) => {
             Live Matches
           </Text>
 
-          {error && (
-            <View
-              style={{
-                backgroundColor: Color.danger + "20",
-                padding: 8,
-                borderRadius: 6,
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ color: Color.danger, textAlign: "center" }}>
-                {error}
-              </Text>
-            </View>
-          )}
-
-          {liveMatches.length > 0 ? (
-            liveMatches.map((match) => renderLiveMatch(match))
-          ) : (
-            <View
-              style={{
-                padding: 15,
-                alignItems: "center",
-                backgroundColor: Color.white,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: Color.primaryBlue + "20",
-              }}
-            >
-              <Ionicons name="tv-outline" size={35} color={Color.primaryBlue} />
-              <Text style={[CommonStyle.descText, { marginTop: 8 }]}>
-                No live matches at the moment
-              </Text>
-            </View>
-          )}
+          <LiveMatchCard />
 
           <Text style={{
             textAlign: 'center',
