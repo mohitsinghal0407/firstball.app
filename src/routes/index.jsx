@@ -1,17 +1,16 @@
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import React, {useEffect} from "react";
+import React from "react";
+import MatchList from "../screens/matchModule/matchList";
+import MatchStream from "../screens/matchModule/matchStream";
 import Splash from "../screens/splash";
 import SignIn from "../screens/authModule/signIn";
-import UserProfile from "../screens/profileModule/userProfile";
-import ErrorScreen from "../screens/authModule/errorScreen";
 import Processing from "../screens/processing";
-import MatchStream from "../screens/matchStream";
 
 
 const AuthStack = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
 
-export const AuthScreen = (props) => (
+export const AuthScreen = () => (
 	<AuthStack.Navigator
 		initialRouteName="Splash"
 		screenOptions={{
@@ -21,21 +20,20 @@ export const AuthScreen = (props) => (
 	>
 		<AuthStack.Screen name="Splash" component={Splash} />
 		<AuthStack.Screen name="SignIn" component={SignIn} />
-		<AuthStack.Screen name="ErrorScreen" component={ErrorScreen} />
-		<AuthStack.Screen name="UserProfile" component={ProfileStack} />
+		<AuthStack.Screen name="MatchList" component={MatchStack} />
 		<AuthStack.Screen name="Processing" component={Processing} />
 	</AuthStack.Navigator>
 );
 
-export const ProfileStack = () => (
+export const MatchStack = () => (
 	<Stack.Navigator
-		initialRouteName="UserProfileScreen"
+		initialRouteName="MatchListScreen"
 		screenOptions={{
 			animation: "slide_from_right",
 			headerShown: false,
 		}}
 	>
-		<AuthStack.Screen name="UserProfileScreen" component={UserProfile} />
+		<AuthStack.Screen name="MatchListScreen" component={MatchList} />
 		<AuthStack.Screen name="MatchStream" component={MatchStream} /> 
 		<AuthStack.Screen name="ProcessSignIn" component={SignIn} />
 	</Stack.Navigator>

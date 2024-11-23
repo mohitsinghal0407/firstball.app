@@ -86,7 +86,7 @@ const SignIn = ({ navigation }) => {
             navigation.dispatch(
                 CommonActions.reset({
                     index: 0,
-                    routes: [{ name: "UserProfile" }],
+                    routes: [{ name: "MatchList" }],
                 })
             );
         }
@@ -95,9 +95,7 @@ const SignIn = ({ navigation }) => {
     const onPressLogin = async (data) => {
         try {
             setIsLoading(true);
-			console.log("dataReachedAtLogin", data);
 			const response = await axiosInstance.post(apiRoutes.signIn, data);
-			console.log("responseAfterDispatch", response);
             if (response.data.success) {
                 await AsyncStorage.setItem("access_token", response.data.token);
                 checkTokenAndNavigate();
@@ -105,7 +103,6 @@ const SignIn = ({ navigation }) => {
                 showErrorMessage("Invalid login credentials");
             }
         } catch (error) {
-            console.error("Login error:", error);
             showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);
         } finally {
             setIsLoading(false);

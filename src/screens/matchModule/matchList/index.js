@@ -21,7 +21,7 @@ import apiRoutes from "../../../apis/apiRoutes";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import style from "./style";
 
-const UserProfile = ({ navigation, route }) => {
+const MatchList = ({ navigation, route }) => {
   const [exitModal, setExitModal] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -306,4 +306,4 @@ const UserProfile = ({ navigation, route }) => {
   );
 };
 
-export default UserProfile;
+export default MatchList;

@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, Dimensions
 import Orientation from 'react-native-orientation-locker';
 import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
-import BackArrow from '../../components/backArrow';
-import axiosInstance from '../../apis';
-import apiRoutes from '../../apis/apiRoutes';
-import { Color } from '../../theme/colors';
+import BackArrow from '../../../components/backArrow';
+import axiosInstance from '../../../apis';
+import apiRoutes from '../../../apis/apiRoutes';
+import { Color } from '../../../theme/colors';
 
 const livekitServerUrl = 'wss://firstball-ge9m4mmg.livekit.cloud';
 
