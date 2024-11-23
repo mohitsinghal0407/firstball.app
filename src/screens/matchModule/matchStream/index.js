@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, Dimensions, StatusBar, PanResponder } from 'react-native';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions, StatusBar, PanResponder } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
@@ -16,11 +16,11 @@ const MatchStream = ({ route, navigation }) => {
   const [match, setMatch] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
-  // const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [roomInstance, setRoomInstance] = useState(null);
   const [liveMatches, setLiveMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [shouldConnect, setShouldConnect] = useState(true);
+  const [windowDimensions, setWindowDimensions] = useState(Dimensions.get('window'));
 
   // Lock to landscape and hide status bar on mount
   useEffect(() => {
@@ -31,7 +31,7 @@ const MatchStream = ({ route, navigation }) => {
     return () => {
       StatusBar.setHidden(false);
       Orientation.unlockAllOrientations();
-      
+
       // Ensure proper cleanup of LiveKit connection
       if (roomInstance) {
         setShouldConnect(false);
@@ -48,7 +48,6 @@ const MatchStream = ({ route, navigation }) => {
         setMatch(null);
         setToken(null);
         setLiveMatches([]);
-        // roomInstance.disconnect();
       }
     });
 
@@ -126,6 +125,21 @@ const MatchStream = ({ route, navigation }) => {
     console.log('Disconnected from LiveKit server');
   };
 
+  // Ensure that the layout is updated when the dimensions change
+  useEffect(() => {
+    const onChange = ({ window }) => {
+      setWindowDimensions(window);
+    };
+
+    // Add event listener for dimension changes
+    Dimensions.addEventListener('change', onChange);
+
+    // Clean up event listener on component unmount or when the effect is rerun
+    return () => {
+      Dimensions.removeEventListener('change', onChange);
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -153,20 +167,21 @@ const MatchStream = ({ route, navigation }) => {
           dynacast: true,
           publishDefaults: {
             simulcast: true,
-            videoCodec: 'h264',
+            videoCodec: 'vp8',
           },
           videoCaptureDefaults: {
             resolution: { width: 1920, height: 1080 },
           },
         }}
-        // onConnected={handleConnected}
-        // onDisconnected={handleDisconnected}
+        onConnected={handleConnected}
+        onDisconnected={handleDisconnected}
+        style={{ flex: 1 }}
       >
         <View style={styles.headerOverlay}>
           <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
         </View>
-        
-        <RoomView isConnected={isConnected} />
+
+        <RoomView isConnected={isConnected} windowDimensions={windowDimensions} />
         
       </LiveKitRoom>
     </View>
@@ -174,7 +189,7 @@ const MatchStream = ({ route, navigation }) => {
 };
 
 // RoomView component (same as before)
-const RoomView = ({ isConnected }) => {
+const RoomView = ({ isConnected, windowDimensions }) => {
   const tracks = useTracks([
     { source: Track.Source.Camera },
     { source: Track.Source.ScreenShare },
@@ -187,22 +202,17 @@ const RoomView = ({ isConnected }) => {
         <View style={styles.videoContainer}>
           <VideoTrack 
             trackRef={item} 
-            style={styles.fullscreenVideo}
-            objectFit="cover"
+            style={{
+              width: windowDimensions.width, 
+              height: windowDimensions.height,
+            }}
+            objectFit="cover" 
           />
         </View>
       );
     }
     return null;
   };
-
-  // if (!isConnected) {
-  //   return (
-  //     <View style={styles.centerContainer}>
-  //       <Text style={styles.errorText}>Connecting to stream...</Text>
-  //     </View>
-  //   );
-  // }
 
   if (tracks.length === 0) {
     return (
@@ -211,7 +221,6 @@ const RoomView = ({ isConnected }) => {
       </View>
     );
   }
-
   return (
     <View style={styles.container}>
       <FlatList
@@ -229,6 +238,8 @@ const styles = StyleSheet.create({
   fullScreenContainer: {
     flex: 1,
     backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerOverlay: {
     position: 'absolute',
@@ -274,4 +285,5 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
 });
+
 export default MatchStream;
