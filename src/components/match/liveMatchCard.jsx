@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet,TouchableOpacity, ActivityIndicator } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { CommonStyle } from "../../theme/style";
 import { Color } from "../../theme/colors";
@@ -42,11 +42,9 @@ const LiveMatchCard = () => {
         CommonStyle.card,
         {
           marginBottom: 4,
-          padding: 8,
-          borderRadius: 6,
-          backgroundColor: "#F8FAFF",
-          borderWidth: 1,
-          borderColor: Color.primaryBlue + "20",
+          padding: 16,
+          borderRadius: 10,
+          backgroundColor: "#E0F2FE",
         },
       ]}
       onPress={() => navigation.navigate("MatchStream", { matchId: item._id })}
@@ -58,18 +56,15 @@ const LiveMatchCard = () => {
           alignItems: "center",
           marginVertical: 2,
           paddingVertical: 2,
-          borderTopWidth: 0.5,
-          borderBottomWidth: 0.5,
-          borderColor: Color.primaryBlue + "10",
         }}
       >
         <View style={{ flex: 1 }}>
           <Text 
             style={{ 
-              color: Color.primaryBlue,
               fontSize: 14,
-              fontWeight: "600",
-              marginRight: 6
+              fontWeight: '500',
+              color: '#374151',
+              marginRight: 4
             }}
             numberOfLines={1}
           >
@@ -95,7 +90,7 @@ const LiveMatchCard = () => {
   if (isLoading) {
     return (
       <View style={{ padding: 20, alignItems: "center" }}>
-        <ActivityIndicator size="large" color={Color.primaryBlue} />
+        <ActivityIndicator size="large" color="#2563EB" />
       </View>
     );
   }
@@ -109,14 +104,12 @@ const LiveMatchCard = () => {
           style={{
             padding: 15,
             alignItems: "center",
-            backgroundColor: Color.white,
+            backgroundColor: "#E0F2FE",
             borderRadius: 10,
-            borderWidth: 1,
-            borderColor: Color.primaryBlue + "20",
           }}
         >
-          <Ionicons name="tv-outline" size={35} color={Color.primaryBlue} />
-          <Text style={[CommonStyle.descText, { marginTop: 8 }]}>
+          <Ionicons name="tv-outline" size={35} color="#2563EB" />
+          <Text style={[CommonStyle.descText, { marginTop: 8, color: "#2563EB", fontSize: 16 }]}>
             No live matches at the moment
           </Text>
         </View>
@@ -124,5 +117,100 @@ const LiveMatchCard = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        padding: 20,
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#2563EB',
+    },
+    dateSection: {
+        marginBottom: 20,
+    },
+    dateText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#2563EB',
+        textAlign: 'center',
+        marginVertical: 10,
+        borderBottomWidth: 2,
+        borderColor: '#2563EB',
+        paddingBottom: 5,
+    },
+    matchCard: {
+        backgroundColor: '#E0F2FE',
+        borderRadius: 10,
+        padding: 16,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        width: '100%',
+    },
+    competitionText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#6D28D9',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    teamContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        marginBottom: 10,
+    },
+    teamDetails: {
+        alignItems: 'center',
+        flex: 1,
+        marginHorizontal: 8,
+    },
+    logo: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginBottom: 4,
+    },
+    teamText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#374151',
+        textAlign: 'center',
+        width: '100%',
+        height: 40,
+    },
+    vsText: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#4B5563',
+        marginHorizontal: 8,
+    },
+    matchInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    timeText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#1D4ED8',
+    },
+    locationText: {
+        fontSize: 12,
+        fontWeight: '400',
+        color: '#6B7280',
+    },
+});
 
 export default LiveMatchCard;
