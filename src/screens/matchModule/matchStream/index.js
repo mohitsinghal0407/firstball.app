@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions, StatusBar, PanResponder } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions, StatusBar, PanResponder, TouchableOpacity } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
@@ -7,6 +7,7 @@ import BackArrow from '../../../components/backArrow';
 import axiosInstance from '../../../apis';
 import apiRoutes from '../../../apis/apiRoutes';
 import { showErrorMessage } from '../../../utils/helpers';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const livekitServerUrl = 'wss://firstball-ge9m4mmg.livekit.cloud';
 
@@ -20,6 +21,7 @@ const MatchStream = ({ route, navigation }) => {
   const [liveMatches, setLiveMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [windowDimensions, setWindowDimensions] = useState(Dimensions.get('window'));
+  const [showControls, setShowControls] = useState(false);
 
   // Lock to landscape and hide status bar on mount
   useEffect(() => {
@@ -71,6 +73,23 @@ const MatchStream = ({ route, navigation }) => {
     }
   };
 
+  // Navigation handlers
+  const handlePrevMatch = () => {
+    if (currentMatchIndex > 0) {
+      const prevIndex = currentMatchIndex - 1;
+      setCurrentMatchIndex(prevIndex);
+      fetchMatchAndToken(liveMatches[prevIndex]._id);
+    }
+  };
+
+  const handleNextMatch = () => {
+    if (currentMatchIndex < liveMatches.length - 1) {
+      const nextIndex = currentMatchIndex + 1;
+      setCurrentMatchIndex(nextIndex);
+      fetchMatchAndToken(liveMatches[nextIndex]._id);
+    }
+  };
+
   // Pan Responder for swipe gestures
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (evt, gestureState) => {
@@ -79,14 +98,10 @@ const MatchStream = ({ route, navigation }) => {
     onPanResponderRelease: (evt, gestureState) => {
       if (gestureState.dx < -100 && currentMatchIndex < liveMatches.length - 1) {
         // Swipe left - next match
-        const nextIndex = currentMatchIndex + 1;
-        setCurrentMatchIndex(nextIndex);
-        fetchMatchAndToken(liveMatches[nextIndex]._id);
+        handleNextMatch();
       } else if (gestureState.dx > 100 && currentMatchIndex > 0) {
         // Swipe right - previous match
-        const prevIndex = currentMatchIndex - 1;
-        setCurrentMatchIndex(prevIndex);
-        fetchMatchAndToken(liveMatches[prevIndex]._id);
+        handlePrevMatch();
       }
     },
   });
@@ -142,6 +157,17 @@ const MatchStream = ({ route, navigation }) => {
     };
   }, []);
 
+  // Auto-hide controls after delay
+  useEffect(() => {
+    let timeout;
+    if (showControls) {
+      timeout = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timeout);
+  }, [showControls]);
+
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -159,7 +185,12 @@ const MatchStream = ({ route, navigation }) => {
   }
 
   return (
-    <View style={styles.fullScreenContainer} {...panResponder.panHandlers}>
+    <TouchableOpacity 
+      activeOpacity={1}
+      onPress={() => setShowControls(true)}
+      style={styles.fullScreenContainer} 
+      {...panResponder.panHandlers}
+    >
       <LiveKitRoom
         serverUrl={livekitServerUrl}
         token={token}
@@ -179,14 +210,36 @@ const MatchStream = ({ route, navigation }) => {
         onDisconnected={handleDisconnected}
         style={{ flex: 1 }}
       >
-        <View style={styles.headerOverlay}>
-          <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
-        </View>
+        {showControls && (
+          <View style={styles.headerOverlay}>
+            <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
+          </View>
+        )}
 
         <RoomView isConnected={isConnected} windowDimensions={windowDimensions} />
+
+        {showControls && (
+          <View style={styles.navigationControls}>
+            <TouchableOpacity 
+              style={[styles.navButton, currentMatchIndex === 0 && styles.disabledButton]} 
+              onPress={handlePrevMatch}
+              disabled={currentMatchIndex === 0}
+            >
+              <Ionicons name="chevron-back" size={30} color="rgba(255,255,255,0.7)" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.navButton, currentMatchIndex === liveMatches.length - 1 && styles.disabledButton]}
+              onPress={handleNextMatch}
+              disabled={currentMatchIndex === liveMatches.length - 1}
+            >
+              <Ionicons name="chevron-forward" size={30} color="rgba(255,255,255,0.7)" />
+            </TouchableOpacity>
+          </View>
+        )}
         
       </LiveKitRoom>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -285,6 +338,24 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     zIndex: 2,
+  },
+  navigationControls: {
+    position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    left: 0,
+    right: 0,
+    top: '50%',
+    paddingHorizontal: 20,
+    zIndex: 2,
+  },
+  navButton: {
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 25,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });
 
