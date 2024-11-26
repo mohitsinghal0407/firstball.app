@@ -21,7 +21,6 @@ const MatchStream = ({ route, navigation }) => {
   const [liveMatches, setLiveMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [windowDimensions, setWindowDimensions] = useState(Dimensions.get('window'));
-  const [showControls, setShowControls] = useState(false);
 
   // Lock to landscape and hide status bar on mount
   useEffect(() => {
@@ -157,17 +156,6 @@ const MatchStream = ({ route, navigation }) => {
     };
   }, []);
 
-  // Auto-hide controls after delay
-  useEffect(() => {
-    let timeout;
-    if (showControls) {
-      timeout = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-    }
-    return () => clearTimeout(timeout);
-  }, [showControls]);
-
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -185,12 +173,7 @@ const MatchStream = ({ route, navigation }) => {
   }
 
   return (
-    <TouchableOpacity 
-      activeOpacity={1}
-      onPress={() => setShowControls(true)}
-      style={styles.fullScreenContainer} 
-      {...panResponder.panHandlers}
-    >
+    <View style={styles.fullScreenContainer} {...panResponder.panHandlers}>
       <LiveKitRoom
         serverUrl={livekitServerUrl}
         token={token}
@@ -210,36 +193,32 @@ const MatchStream = ({ route, navigation }) => {
         onDisconnected={handleDisconnected}
         style={{ flex: 1 }}
       >
-        {showControls && (
-          <View style={styles.headerOverlay}>
-            <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
-          </View>
-        )}
+        <View style={styles.headerOverlay}>
+          <BackArrow navigation={navigation} colorChange="rgba(255,255,255,0.7)" />
+        </View>
 
         <RoomView isConnected={isConnected} windowDimensions={windowDimensions} />
 
-        {showControls && (
-          <View style={styles.navigationControls}>
-            <TouchableOpacity 
-              style={[styles.navButton, currentMatchIndex === 0 && styles.disabledButton]} 
-              onPress={handlePrevMatch}
-              disabled={currentMatchIndex === 0}
-            >
-              <Ionicons name="chevron-back" size={30} color="rgba(255,255,255,0.7)" />
-            </TouchableOpacity>
+        <View style={styles.navigationControls}>
+          <TouchableOpacity 
+            style={[styles.navButton, currentMatchIndex === 0 && styles.disabledButton]} 
+            onPress={handlePrevMatch}
+            disabled={currentMatchIndex === 0}
+          >
+            <Ionicons name="chevron-back" size={30} color="rgba(255,255,255,0.7)" />
+          </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.navButton, currentMatchIndex === liveMatches.length - 1 && styles.disabledButton]}
-              onPress={handleNextMatch}
-              disabled={currentMatchIndex === liveMatches.length - 1}
-            >
-              <Ionicons name="chevron-forward" size={30} color="rgba(255,255,255,0.7)" />
-            </TouchableOpacity>
-          </View>
-        )}
+          <TouchableOpacity 
+            style={[styles.navButton, currentMatchIndex === liveMatches.length - 1 && styles.disabledButton]}
+            onPress={handleNextMatch}
+            disabled={currentMatchIndex === liveMatches.length - 1}
+          >
+            <Ionicons name="chevron-forward" size={30} color="rgba(255,255,255,0.7)" />
+          </TouchableOpacity>
+        </View>
         
       </LiveKitRoom>
-    </TouchableOpacity>
+    </View>
   );
 };
 

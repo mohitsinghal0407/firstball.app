@@ -3,11 +3,9 @@ import {
     View,
     Text,
     Image,
-    TouchableOpacity,
     StyleSheet,
     AppState,
 } from "react-native";
-import { useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import InputBox from "../../../components/inputBox";
 import AppButton from "../../../components/appButton";
@@ -17,7 +15,6 @@ import { CommonStyle } from "../../../theme/style";
 import {
 	dynamicSize,
 	showErrorMessage,
-	showSuccessMessage,
 } from "../../../utils/helpers";
 import { loginScreen } from "../../../utils/resources";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -29,10 +26,7 @@ import apiRoutes from "../../../apis/apiRoutes";
 import axiosInstance from "../../../apis";
 
 const SignIn = ({ navigation }) => {
-    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
-    const [accessToken, setAccessToken] = useState(null);
-    const [isOpen, setIsOpen] = useState(false);
     const appState = useRef(AppState.currentState);
     const [formData, setFormData] = useState({
         username: '',
@@ -40,6 +34,10 @@ const SignIn = ({ navigation }) => {
         mode: 'mobile'
     });
     const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        checkTokenAndNavigate();
+    }, []);
 
     const validateField = (name, value) => {
         if (!value) {
@@ -81,14 +79,37 @@ const SignIn = ({ navigation }) => {
     };
 
     const checkTokenAndNavigate = async () => {
-        const token = await AsyncStorage.getItem("access_token");
-        if (token) {
-            navigation.dispatch(
-                CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: "MatchList" }],
-                })
-            );
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            if (token) {
+                // Verify if token is valid by making an API call
+                const response = await axiosInstance.get(apiRoutes.userInfo)
+                
+                if (response.data.success) {
+                    const today = new Date();
+                    const expiresAtDate = new Date(response.data.user.expiresAt);
+        
+                    // Normalize both dates to midnight
+                    today.setHours(0, 0, 0, 0);
+                    expiresAtDate.setHours(0, 0, 0, 0);
+                    // Check if the account is expired
+                    if (today < expiresAtDate) {
+                        await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
+                        navigation.dispatch(
+                            CommonActions.reset({
+                                index: 0,
+                                routes: [{ name: "MatchList" }],
+                            })
+                        );
+                    }
+                } else {
+                    // If token is invalid, remove it
+                    await AsyncStorage.removeItem("access_token");
+                }
+            }
+        } catch (error) {
+            // If verification fails, remove token
+            await AsyncStorage.removeItem("access_token");
         }
     };
 
@@ -101,7 +122,7 @@ const SignIn = ({ navigation }) => {
                 await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
                 checkTokenAndNavigate();
             } else {
-                showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);
+                showErrorMessage(`Authentication failed! ${response?.message ? response.message : 'Something went wrong.'}`);
             }
         } catch (error) {
             showErrorMessage(`Authentication failed! ${error?.message ? error.message : 'Something went wrong.'}`);

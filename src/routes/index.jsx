@@ -5,7 +5,7 @@ import MatchStream from "../screens/matchModule/matchStream";
 import Splash from "../screens/splash";
 import SignIn from "../screens/authModule/signIn";
 import Processing from "../screens/processing";
-
+import ChangePassword from "../screens/profileModule/changePassword";
 
 const AuthStack = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
@@ -22,6 +22,7 @@ export const AuthScreen = () => (
 		<AuthStack.Screen name="SignIn" component={SignIn} />
 		<AuthStack.Screen name="MatchList" component={MatchStack} />
 		<AuthStack.Screen name="Processing" component={Processing} />
+		<AuthStack.Screen name="ChangePassword" component={ChangePassword} />
 	</AuthStack.Navigator>
 );
 
@@ -36,7 +37,6 @@ export const MatchStack = () => (
 		<AuthStack.Screen name="MatchListScreen" component={MatchList} />
 		<AuthStack.Screen name="MatchStream" component={MatchStream} /> 
 		<AuthStack.Screen name="ProcessSignIn" component={SignIn} />
+		<AuthStack.Screen name="ChangePasswordScreen" component={ChangePassword} />
 	</Stack.Navigator>
 );
-
-

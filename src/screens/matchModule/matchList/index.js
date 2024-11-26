@@ -156,6 +156,7 @@ const MatchList = ({ navigation, route }) => {
             {
               paddingBottom: dynamicSize(6, 1),
               paddingHorizontal: dynamicSize(8, 1),
+              justifyContent: 'flex-end'
             },
           ]}
         >
@@ -172,7 +173,33 @@ const MatchList = ({ navigation, route }) => {
                 shadowRadius: 1.41,
                 elevation: 2,
                 width: '25%',
-                alignSelf: 'flex-end'
+                marginRight: 10
+              },
+            ]}
+            onPress={() => navigation.navigate('ChangePasswordScreen')}
+          >
+            <Ionicons
+              name="key-outline"
+              size={20}
+              color={Color.primaryBlue}
+              style={{ alignSelf: "center" }}
+            />
+            <Text style={[style.logoutText, { fontSize: 12 }]}>Change Password</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              CommonStyle.headingStyleBar,
+              {
+                backgroundColor: Color.white,
+                padding: 6,
+                borderRadius: 6,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
+                elevation: 2,
+                width: '25%',
               },
             ]}
             onPress={() => setExitModal(!exitModal)}

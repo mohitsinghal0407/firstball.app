@@ -16,7 +16,7 @@ export const CommonStyle = StyleSheet.create({
 	},
 	appHeading: {
 		fontFamily: Fonts.extraBold,
-		fontSize: dynamicSize(40),
+		fontSize: dynamicSize(30),
 		color: Color.primaryBlue,
 		textAlign: "center",
 	},
