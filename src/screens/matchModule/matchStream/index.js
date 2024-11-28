@@ -110,10 +110,9 @@ const MatchStream = ({ route, navigation }) => {
     try {
       setIsLoading(true);
       const { data: streamData } = await axiosInstance.get(`${apiRoutes.matchStream}/${matchId}`);
-      const { data: matchData } = await axiosInstance.get(`${apiRoutes.matchDetails}/${matchId}`);
       
       setToken(streamData.stream);
-      setMatch(matchData.match);
+      setMatch(matchId);
     } catch (error) {
       console.error('Error fetching match or stream data:', error);
     } finally {
