@@ -1,11 +1,12 @@
 const production = false;
 const appVersion = "Version 1.0";
-const appName = "BabyGenie";
+const appName = "FirstBall";
 
 const liveHost = "";
 const liveFiles = "";
 
 const testHost = "https://api.firstball.in/api/v1";
+// const testHost = "http://localhost:3000/api/v1";
 
 const testFiles = "";
 

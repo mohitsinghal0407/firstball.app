@@ -108,7 +108,7 @@ const MatchList = ({ navigation, route }) => {
 
           <LiveMatchCard />
 
-          <Text style={{
+          {/* <Text style={{
             textAlign: 'center',
             color: Color.primaryPink,
             marginTop: 10,
@@ -120,7 +120,7 @@ const MatchList = ({ navigation, route }) => {
             {timeLeft.months > 0 && `${timeLeft.months} months `}
             {timeLeft.days > 0 && `${timeLeft.days} days `}
             left in your subscription
-          </Text>
+          </Text> */}
 
           <Text
             style={[
@@ -143,7 +143,7 @@ const MatchList = ({ navigation, route }) => {
         </ScrollView>
       </MainContainer>
 
-      <View
+      {/* <View
         style={{
           backgroundColor: Color.white,
           borderTopWidth: 1,
@@ -213,9 +213,9 @@ const MatchList = ({ navigation, route }) => {
             <Text style={[style.logoutText, { fontSize: 12 }]}>Log Out</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
 
-      <PopupCard
+      {/* <PopupCard
         modalContent={
           <View>
             <Text style={[CommonStyle.modalTitle, { fontSize: 16 }]}>
@@ -244,7 +244,7 @@ const MatchList = ({ navigation, route }) => {
         }
         modalVisible={exitModal}
         setModalVisible={() => setExitModal(!exitModal)}
-      />
+      /> */}
     </>
   );
 };

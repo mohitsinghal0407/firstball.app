@@ -24,9 +24,10 @@ import PasswordField from "../../../components/passwordField";
 import style from "./style";
 import apiRoutes from "../../../apis/apiRoutes";
 import axiosInstance from "../../../apis";
+import DeviceInfo from 'react-native-device-info';
 
 const SignIn = ({ navigation }) => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const appState = useRef(AppState.currentState);
     const [formData, setFormData] = useState({
         username: '',
@@ -80,32 +81,25 @@ const SignIn = ({ navigation }) => {
 
     const checkTokenAndNavigate = async () => {
         try {
-            const token = await AsyncStorage.getItem("access_token");
-            if (token) {
-                // Verify if token is valid by making an API call
-                const response = await axiosInstance.get(apiRoutes.userInfo)
-                
-                if (response.data.success) {
-                    const today = new Date();
-                    const expiresAtDate = new Date(response.data.user.expiresAt);
-        
-                    // Normalize both dates to midnight
-                    today.setHours(0, 0, 0, 0);
-                    expiresAtDate.setHours(0, 0, 0, 0);
-                    // Check if the account is expired
-                    if (today < expiresAtDate) {
-                        await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
-                        navigation.dispatch(
-                            CommonActions.reset({
-                                index: 0,
-                                routes: [{ name: "MatchList" }],
-                            })
-                        );
-                    }
-                } else {
-                    // If token is invalid, remove it
-                    await AsyncStorage.removeItem("access_token");
-                }
+            // Verify if token is valid by making an API call
+            await AsyncStorage.clear();
+            const deviceId = await DeviceInfo.getUniqueId();
+            console.log({ mode: 'mobile', username: deviceId });
+            const response = await axiosInstance.post(apiRoutes.registerAndLoginForMobileApp, { mode: 'mobile', username: deviceId });
+            console.log("Spash Response:", response);
+            if (response.data.success) {
+				setIsLoading(false);
+                await AsyncStorage.setItem("access_token", response.data.token);
+                await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
+                navigation.dispatch(
+					CommonActions.reset({
+						index: 1,
+						routes: [{ name: "MatchList" }],
+					})
+				);
+            } else {
+                // If token is invalid, remove it
+                await AsyncStorage.removeItem("access_token");
             }
         } catch (error) {
             // If verification fails, remove token
@@ -113,10 +107,37 @@ const SignIn = ({ navigation }) => {
         }
     };
 
+    // const checkTokenAndNavigate = async () => {
+    //     try {
+
+    //         // Verify if token is valid by making an API call
+    //         await AsyncStorage.clear();
+    //         const deviceId = DeviceInfo.getUniqueId();
+    //         const response = await axiosInstance.post(apiRoutes.registerAndLoginForMobileApp, { mode: 'mobile', username: deviceId });
+            
+    //         if (response.data.success) {
+    //             await AsyncStorage.setItem("access_token", response.data.token);
+    //             await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
+    //             navigation.dispatch(
+    //                 CommonActions.reset({
+    //                     index: 0,
+    //                     routes: [{ name: "MatchList" }],
+    //                 })
+    //             );
+    //         } else {
+    //             // If token is invalid, remove it
+    //             await AsyncStorage.removeItem("access_token");
+    //         }
+    //     } catch (error) {
+    //         // If verification fails, remove token
+    //         await AsyncStorage.removeItem("access_token");
+    //     }
+    // };
+
     const onPressLogin = async (data) => {
         try {
             setIsLoading(true);
-			const response = await axiosInstance.post(apiRoutes.signIn, data);
+			const response = await axiosInstance.post(apiRoutes.registerAndLoginForMobileApp, data);
             if (response.data.success) {
                 await AsyncStorage.setItem("access_token", response.data.token);
                 await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
@@ -134,7 +155,7 @@ const SignIn = ({ navigation }) => {
     return (
         <>
             {isLoading && <Processing />}
-            {!isLoading && (
+            {/* {!isLoading && (
 				<MainContainer fluid>
 					<View style={style.lockIcon}>
 						<Image source={loginScreen.lockIcon} />
@@ -213,7 +234,7 @@ const SignIn = ({ navigation }) => {
                         />
                     </View>
 				</MainContainer>  
-            )}
+            )} */}
         </>
     );
 };
