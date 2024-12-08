@@ -10,12 +10,9 @@ axiosInstance.interceptors.request.use(
 	async function (config) {
 		config.headers = Config.appHeader;
 		const token = await AsyncStorage.getItem("access_token");
-		console.log("Receive Token", token);
-
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
 		}
-
 		// Do something before request is sent
 		// console.log(config);
 		return config;

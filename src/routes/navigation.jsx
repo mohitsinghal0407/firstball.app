@@ -1,8 +1,8 @@
 import React from "react";
 import {NavigationContainer} from "@react-navigation/native";
-import {AuthScreen} from ".";
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import {StatusBar} from "react-native";
+import { AuthScreen } from ".";
 
 export default function Navigation() {
 	return (

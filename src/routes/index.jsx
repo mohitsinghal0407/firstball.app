@@ -6,6 +6,7 @@ import Splash from "../screens/splash";
 import SignIn from "../screens/authModule/signIn";
 import Processing from "../screens/processing";
 import ChangePassword from "../screens/profileModule/changePassword";
+import VersionMisMatched from "../screens/profileModule/versionMisMatched";
 
 const AuthStack = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ export const AuthScreen = () => (
 		<AuthStack.Screen name="MatchList" component={MatchStack} />
 		<AuthStack.Screen name="Processing" component={Processing} />
 		<AuthStack.Screen name="ChangePassword" component={ChangePassword} />
+		<AuthStack.Screen name="VersionMisMatched" component={VersionMisMatched} />
 	</AuthStack.Navigator>
 );
 
