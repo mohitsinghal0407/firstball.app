@@ -6,6 +6,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   StyleSheet,
+  View,
 } from "react-native";
 import MainContainer from "../../../components/mainContainer";
 import { Color } from "../../../theme/colors";
@@ -20,13 +21,13 @@ import { showErrorMessage } from "../../../utils/helpers";
 const MatchList = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [matches, setMatches] = useState([]);
 
   // Fetch matches from the server
   const fetchMatches = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get(apiRoutes.matches);
+      await axiosInstance.get(apiRoutes.matches);
+      // Set matches if API response is successful
     } catch (error) {
       showErrorMessage(`Error: ${error.message || "Something went wrong."}`);
     } finally {
@@ -37,7 +38,7 @@ const MatchList = ({ navigation }) => {
 
   // Handle manual refresh button
   const handleRefresh = () => {
-    fetchMatches(); // Re-fetch matches on button press
+    fetchMatches();
   };
 
   // Pull-to-refresh handler
@@ -53,44 +54,54 @@ const MatchList = ({ navigation }) => {
 
   return (
     <MainContainer fluid>
-      {/* Scrollable Content with Pull-to-Refresh */}
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onPullToRefresh}
-            colors={[Color.primaryBlue]}
-            tintColor={Color.primaryBlue}
-          />
-        }
-      >
-        {/* Live Matches Section */}
-        <Text style={[CommonStyle.title, styles.sectionTitle]}>Live Matches</Text>
-        {isLoading ? (
-          <ActivityIndicator size="large" color={Color.primaryBlue} />
-        ) : (
-          <LiveMatchCard />
-        )}
+      <View style={styles.container}>
+        {/* Scrollable Content */}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onPullToRefresh}
+              colors={[Color.primaryBlue]}
+              tintColor={Color.primaryBlue}
+            />
+          }
+        >
+          {/* Live Matches Section */}
+          <Text style={[CommonStyle.title, styles.sectionTitle]}>
+            Live Matches
+          </Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color={Color.primaryBlue} />
+          ) : (
+            <LiveMatchCard />
+          )}
 
-        {/* Upcoming Matches Section */}
-        <Text style={[CommonStyle.title, styles.sectionTitle]}>Upcoming Matches</Text>
-        {isLoading ? (
-          <ActivityIndicator size="large" color={Color.primaryBlue} />
-        ) : (
-          <UpcomingMatchCard />
-        )}
-      </ScrollView>
+          {/* Upcoming Matches Section */}
+          <Text style={[CommonStyle.title, styles.sectionTitle]}>
+            Upcoming Matches
+          </Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color={Color.primaryBlue} />
+          ) : (
+            <UpcomingMatchCard />
+          )}
+        </ScrollView>
 
-      {/* Refresh Button */}
-      <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-        <Ionicons name="refresh" size={24} color={Color.white} />
-      </TouchableOpacity>
+        {/* Fixed Refresh Button */}
+        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+          <Ionicons name="refresh" size={24} color={Color.white} />
+        </TouchableOpacity>
+      </View>
     </MainContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    position: "relative",
+  },
   scrollContainer: {
     paddingHorizontal: 10,
     paddingBottom: 20,
@@ -102,11 +113,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   refreshButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
+    position: "absolute", // Ensures the button is always on the screen
+    bottom: 20, // Positioned 20px above the screen bottom
+    right: 20, // Positioned 20px from the screen's right edge
     backgroundColor: Color.primaryBlue,
-    padding: 10,
+    padding: 15,
     borderRadius: 50,
     shadowColor: "#000",
     shadowOpacity: 0.25,
