@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions, StatusBar, PanResponder, TouchableOpacity } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
+import KeepAwake from 'react-native-keep-awake'; // KeepAwake import added
 import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
 import BackArrow from '../../../components/backArrow';
@@ -26,12 +27,12 @@ const MatchStream = ({ route, navigation }) => {
   useEffect(() => {
     StatusBar.setHidden(true);
     Orientation.lockToLandscape();
-
+    KeepAwake.activate(); // Keep the screen awake when component mounts
     // Clean up function
     return () => {
       StatusBar.setHidden(false);
       Orientation.unlockAllOrientations();
-
+      KeepAwake.deactivate(); 
       // Ensure proper cleanup of LiveKit connection
       if (roomInstance) {
         roomInstance.disconnect();
