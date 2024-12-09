@@ -184,9 +184,6 @@ const MatchStream = ({ route, navigation }) => {
             simulcast: true,
             videoCodec: 'vp8',
           },
-          videoCaptureDefaults: {
-            resolution: { width: 1920, height: 1080 },
-          },
         }}
         onConnected={handleConnected}
         onDisconnected={handleDisconnected}
@@ -229,16 +226,22 @@ const RoomView = ({ isConnected, windowDimensions }) => {
   ]);
 
   const renderTrack = ({ item }) => {
-    if (isTrackReference(item) && (item.publication?.kind === 'video' || item.source === Track.Source.ScreenShare)) {
+    if (
+      isTrackReference(item) &&
+      (item.publication?.kind === "video" || item.source === Track.Source.ScreenShare)
+    ) {
+      // Maintain aspect ratio for the video
+      const aspectRatio = windowDimensions.width / windowDimensions.height;
+
       return (
         <View style={styles.videoContainer}>
-          <VideoTrack 
-            trackRef={item} 
+          <VideoTrack
+            trackRef={item}
             style={{
-              width: windowDimensions.width, 
-              height: windowDimensions.height,
+              width: windowDimensions.width,
+              height: windowDimensions.width / aspectRatio, // Dynamically calculate height to maintain aspect ratio
             }}
-            objectFit="cover" 
+            objectFit="contain" // Use 'contain' to ensure the entire video is visible
           />
         </View>
       );
@@ -268,6 +271,23 @@ const RoomView = ({ isConnected, windowDimensions }) => {
 };
 
 const styles = StyleSheet.create({
+  videoContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+    flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+
   fullScreenContainer: {
     flex: 1,
     backgroundColor: '#000',
@@ -281,18 +301,6 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 5,
     zIndex: 2,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  fullscreenVideo: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
   },
   loaderContainer: {
     flex: 1,
@@ -310,12 +318,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     textAlign: 'center',
-  },
-  muteButtonContainer: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    zIndex: 2,
   },
   navigationControls: {
     position: 'absolute',
