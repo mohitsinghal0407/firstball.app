@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "AuthDesign.app"
-               BlueprintName = "AuthDesign"
-               ReferencedContainer = "container:AuthDesign.xcodeproj">
+               BuildableName = "FirstBall.app"
+               BlueprintName = "FirstBall"
+               ReferencedContainer = "container:FirstBall.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "AuthDesignTests.xctest"
-               BlueprintName = "AuthDesignTests"
-               ReferencedContainer = "container:AuthDesign.xcodeproj">
+               BuildableName = "FirstBallTests.xctest"
+               BlueprintName = "FirstBallTests"
+               ReferencedContainer = "container:FirstBall.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "AuthDesign.app"
-            BlueprintName = "AuthDesign"
-            ReferencedContainer = "container:AuthDesign.xcodeproj">
+            BuildableName = "FirstBall.app"
+            BlueprintName = "FirstBall"
+            ReferencedContainer = "container:FirstBall.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "AuthDesign.app"
-            BlueprintName = "AuthDesign"
-            ReferencedContainer = "container:AuthDesign.xcodeproj">
+            BuildableName = "FirstBall.app"
+            BlueprintName = "FirstBall"
+            ReferencedContainer = "container:FirstBall.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
