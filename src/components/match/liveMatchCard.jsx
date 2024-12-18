@@ -54,7 +54,15 @@ const LiveMatchCard = () => {
     >
       <View style={styles.matchRow}>
         <Text style={styles.matchTitle}>
-          {match.homeTeam} vs {match.awayTeam}
+          {match.homeTeam.length > 15 || match.awayTeam.length > 15 ? (
+            <>
+              <Text style={styles.teamName}>{match.homeTeam}</Text>
+              <Text style={styles.vsText}> vs </Text>
+              <Text style={styles.teamName}>{match.awayTeam}</Text>
+            </>
+          ) : (
+            `${match.homeTeam} vs ${match.awayTeam}`
+          )}
         </Text>
         <View style={styles.watchNowContainer}>
           <Text style={styles.watchNowText}>Watch Now</Text>
@@ -115,8 +123,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    flexWrap: "wrap", // Allow wrapping to the next line
   },
   matchTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    flex: 1, // Allow the title to take available space
+  },
+  teamName: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  vsText: {
     fontSize: 14,
     fontWeight: "500",
     color: "#374151",

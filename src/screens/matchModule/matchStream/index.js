@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Dimensions, StatusBar, PanResponder, TouchableOpacity } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import KeepAwake from 'react-native-keep-awake'; // KeepAwake import added
-import { LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
+import { AudioSession, LiveKitRoom, useTracks, VideoTrack, isTrackReference } from '@livekit/react-native';
 import { Track } from 'livekit-client';
 import BackArrow from '../../../components/backArrow';
 import axiosInstance from '../../../apis';
@@ -23,8 +23,13 @@ const MatchStream = ({ route, navigation }) => {
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [windowDimensions, setWindowDimensions] = useState(Dimensions.get('window'));
 
+  const startAudioSession = async () => {
+    await AudioSession.startAudioSession();
+  };
+
   // Lock to landscape and hide status bar on mount
-  useEffect(() => {
+  useEffect(() => {  
+    startAudioSession();
     StatusBar.setHidden(true);
     Orientation.lockToLandscape();
     KeepAwake.activate(); // Keep the screen awake when component mounts
@@ -33,6 +38,7 @@ const MatchStream = ({ route, navigation }) => {
       StatusBar.setHidden(false);
       Orientation.unlockAllOrientations();
       KeepAwake.deactivate(); 
+      AudioSession.stopAudioSession();
       // Ensure proper cleanup of LiveKit connection
       if (roomInstance) {
         roomInstance.disconnect();
@@ -40,6 +46,17 @@ const MatchStream = ({ route, navigation }) => {
       }
     };
   }, []);
+
+  // useEffect(() => {
+  //   let start = async () => {
+  //     await AudioSession.startAudioSession();
+  //   };
+
+  //   start();
+  //   return () => {
+  //     AudioSession.stopAudioSession();
+  //   };
+  // }, []);
 
   // Add navigation listener for cleanup
   useEffect(() => {
@@ -177,11 +194,13 @@ const MatchStream = ({ route, navigation }) => {
       <LiveKitRoom
         serverUrl={livekitServerUrl}
         token={token}
+        audio={false}
         connect={true}
         options={{
           adaptiveStream: true,
           dynacast: true,
           publishDefaults: {
+            audio: false,
             simulcast: true,
             videoCodec: 'vp8',
           },
@@ -221,9 +240,9 @@ const MatchStream = ({ route, navigation }) => {
 
 const RoomView = ({ isConnected, windowDimensions }) => {
   const tracks = useTracks([
-    { source: Track.Source.Camera },
+    // { source: Track.Source.Camera },
     { source: Track.Source.ScreenShare },
-    { source: Track.Source.Microphone },
+    // { source: Track.Source.Microphone },
   ]);
 
   const renderTrack = ({ item }) => {
@@ -339,5 +358,4 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
-
 export default MatchStream;
