@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import MainContainer from "../../../components/mainContainer";
 import { Color } from "../../../theme/colors";
-import { CommonStyle } from "../../../theme/style";
 import LiveMatchCard from "../../../components/match/liveMatchCard";
 import UpcomingMatchCard from "../../../components/match/upcomingMatchCard";
 import Ionicons from "react-native-vector-icons/Ionicons";

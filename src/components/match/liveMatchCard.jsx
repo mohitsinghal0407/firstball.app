@@ -95,13 +95,13 @@ const LiveMatchCard = () => {
     <View>
       {fastMatches.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Live Hd match + Commentary</Text>
+          <Text style={styles.sectionTitle}>Live Fast match + bhaav + Session</Text>
           {fastMatches.map((match) => renderLiveMatch(match))}
         </View>
       )}
       {hdMatches.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Live Fast match + bhaav + Session</Text>
+          <Text style={styles.sectionTitle}>Live Hd match + Commentary</Text>
           {hdMatches.map((match) => renderLiveMatch(match))}
         </View>
       )}
