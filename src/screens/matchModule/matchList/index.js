@@ -68,9 +68,6 @@ const MatchList = ({ navigation }) => {
           }
         >
           {/* Live Matches Section */}
-          <Text style={[CommonStyle.title, styles.sectionTitle]}>
-            Live Matches
-          </Text>
           {isLoading ? (
             <ActivityIndicator size="large" color={Color.primaryBlue} />
           ) : (
@@ -78,7 +75,7 @@ const MatchList = ({ navigation }) => {
           )}
 
           {/* Upcoming Matches Section */}
-          <Text style={[CommonStyle.title, styles.sectionTitle]}>
+          <Text style={[styles.sectionTitle]}>
             Upcoming Matches
           </Text>
           {isLoading ? (

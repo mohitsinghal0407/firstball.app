@@ -71,6 +71,9 @@ const LiveMatchCard = () => {
     </TouchableOpacity>
   );
 
+  const hdMatches = liveMatches.filter((match) => match.type === "hd");
+  const fastMatches = liveMatches.filter((match) => match.type === "fast");
+
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -88,7 +91,22 @@ const LiveMatchCard = () => {
     );
   }
 
-  return <View>{liveMatches.map((match) => renderLiveMatch(match))}</View>;
+  return (
+    <View>
+      {fastMatches.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Live Hd match + Commentary</Text>
+          {fastMatches.map((match) => renderLiveMatch(match))}
+        </View>
+      )}
+      {hdMatches.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Live Fast match + bhaav + Session</Text>
+          {hdMatches.map((match) => renderLiveMatch(match))}
+        </View>
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -123,13 +141,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    flexWrap: "wrap", // Allow wrapping to the next line
+    flexWrap: "wrap",
   },
   matchTitle: {
     fontSize: 14,
     fontWeight: "500",
     color: "#374151",
-    flex: 1, // Allow the title to take available space
+    flex: 1,
   },
   teamName: {
     fontSize: 14,
@@ -151,6 +169,16 @@ const styles = StyleSheet.create({
     color: Color.white,
     fontWeight: "600",
     fontSize: 12,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Color.primaryBlue,
+    marginBottom: 10,
+    textAlign: "center",
   },
 });
 
