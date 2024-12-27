@@ -9,8 +9,9 @@ import axiosInstance from '../../../apis';
 import apiRoutes from '../../../apis/apiRoutes';
 import { showErrorMessage } from '../../../utils/helpers';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Config } from '../../../config';
 
-const livekitServerUrl = 'wss://firstball-ge9m4mmg.livekit.cloud';
+const livekitServerUrl = Config.livekitServerUrl;
 
 const MatchStream = ({ route, navigation }) => {
   const { matchId } = route.params;
