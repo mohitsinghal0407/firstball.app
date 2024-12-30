@@ -2,15 +2,11 @@ const production = false;
 const appVersion = "v2";
 const appName = "FirstBall";
 
-const liveHost = "";
-const liveFiles = "";
-
-
+const liveHost = "https://api.firstball.in/api/v1";
 const testHost = "https://api.firstball.in/api/v1";
 // const testHost = "http://localhost:3000/api/v1";
-const livekitServerUrl = 'wss://stream.firstball.in';
 
-const testFiles = "";
+const livekitServerUrl = 'wss://stream.firstball.in';
 
 const errorMessage = {
 	NOT_FOUND: 'NOT_FOUND',
@@ -44,7 +40,6 @@ export class Config {
 	};
 
 	static baseUrl = production ? liveHost : testHost;
-	static url = production ? liveFiles : testFiles;
 	static livekitServerUrl = livekitServerUrl;
 	static errorMessage = errorMessage;
 }

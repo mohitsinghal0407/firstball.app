@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 const LiveMatchCard = () => {
   const [liveMatches, setLiveMatches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMatchStreaming, setIsMatchStreaming] = useState(true);
   const navigation = useNavigation();
 
   const fetchLiveMatches = async () => {
@@ -42,8 +43,21 @@ const LiveMatchCard = () => {
     }
   };
 
+  const fetchSettingInfo = async () => {
+    try {
+      const response = await axiosInstance.get(apiRoutes.settings);
+      if (response.data.success) {
+        const live = response.data.settingInfo[0].matchStreaming;
+        setIsMatchStreaming(live);
+      }
+    } catch (error) {
+      
+    }
+  };
+
   useEffect(() => {
     fetchLiveMatches();
+    fetchSettingInfo();
   }, []);
 
   const renderLiveMatch = (match) => (
@@ -64,9 +78,11 @@ const LiveMatchCard = () => {
             `${match.homeTeam} vs ${match.awayTeam}`
           )}
         </Text>
-        <View style={styles.watchNowContainer}>
-          <Text style={styles.watchNowText}>Watch Now</Text>
-        </View>
+        {isMatchStreaming && (
+          <View style={styles.watchNowContainer}>
+            <Text style={styles.watchNowText}>Watch Now</Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );

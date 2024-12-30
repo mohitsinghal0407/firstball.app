@@ -24,9 +24,7 @@ const SignIn = ({ navigation }) => {
             await AsyncStorage.clear();
             const deviceId = await DeviceInfo.getUniqueId();
             const appVersion = Config.appVersion;
-            console.log("Payload Data:", { mode: 'mobile', username: deviceId, version: appVersion });
             const response = await axiosInstance.post(apiRoutes.registerAndLoginForMobileApp, { mode: 'mobile', username: deviceId, version: appVersion });
-            console.log("Spash Response:", response.data);
             if (response.data.success) {
 				setIsLoading(false);
                 if(response.data.versionMatched) {
