@@ -1,4 +1,5 @@
 const apiRoutes = {
+	settings: `/settings`,
 	signIn: `/auth/login`,
 	registerAndLoginForMobileApp: `/auth/registerAndLoginForMobileApp`,
 	changePassword: `/user/update/password`,
