@@ -16,7 +16,7 @@ export default StyleSheet.create({
 	},
 	createdText: {
 		// color: Color.primaryBlue,
-		color: Color.primaryPink,
+		color: Color.primaryRed,
 		fontSize: dynamicSize(20),
 		display: "flex",
 		marginTop: "auto",

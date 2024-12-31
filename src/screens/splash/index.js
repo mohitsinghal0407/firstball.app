@@ -41,7 +41,7 @@ const Splash = (props) => {
 				/>
 			</Container>
 			<View style={style.createdBy}>
-				<Text style={style.createdText}> Created by </Text>
+				<Text style={style.createdText}> Created By </Text>
 				<Text style={style.createdText}> FirstBall</Text>
 			</View>
 		</>

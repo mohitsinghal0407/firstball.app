@@ -3,6 +3,7 @@ export class Color {
 	static lightBlueBg = "#D6E7FF";
 	static textColor = "#375277";
 	static primaryPink = "#F19CB3";
+	static primaryRed = '#ce2427';
 	static lightPinkBg = "#FFDEE7";
 	static white = "#fff";
 	static inputBg = "#EBF3FF";
