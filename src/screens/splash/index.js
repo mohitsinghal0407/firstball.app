@@ -32,9 +32,6 @@ const Splash = (props) => {
 					resizeMode="contain"
 					style={{ alignSelf: "center" }}
 				/>
-				<View style={style.appName}>
-					<Text style={CommonStyle.appHeading}>First Ball</Text>
-				</View>
 				<Image
 					source={splashScreen.spinner}
 					resizeMode="contain"

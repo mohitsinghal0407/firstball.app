@@ -9,10 +9,10 @@ import {dynamicSize} from "../../utils/helpers";
 import {splashScreen} from "../../utils/resources";
 const Processing = () => {
 	return (
-		<Container containerStyle={{backgroundColor: Color.predictLightBlue}}>
-			<View style={{backgroundColor: Color.predictLightBlue}}>
+		<Container containerStyle={{backgroundColor: Color.lightPinkBg}}>
+			<View style={{backgroundColor: Color.lightPinkBg}}>
 				<Image
-					source={splashScreen.spinnerBLue}
+					source={splashScreen.spinner}
 					resizeMode="contain"
 					style={{
 						alignSelf: "center",
@@ -25,7 +25,7 @@ const Processing = () => {
 				style={[
 					CommonStyle.descText,
 					{
-						color: Color.primaryBlue,
+						color: Color.primaryPink,
 						fontFamily: Fonts.bold,
 						marginTop: dynamicSize(10, 1),
 						textAlign: "center",
