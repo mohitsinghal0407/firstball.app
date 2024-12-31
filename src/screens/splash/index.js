@@ -13,16 +13,16 @@ import { CommonActions } from "@react-navigation/native";
 const Splash = (props) => {
 	let timeoutScreen;
 
-	useEffect(() => {
-		timeoutScreen = setTimeout(() => {
-			props.navigation.dispatch(
-				CommonActions.reset({
-					index: 1,
-					routes: [{ name: "SignIn" }],
-				})
-			);
-		}, 500);
-	}, []);
+	// useEffect(() => {
+	// 	timeoutScreen = setTimeout(() => {
+	// 		props.navigation.dispatch(
+	// 			CommonActions.reset({
+	// 				index: 1,
+	// 				routes: [{ name: "SignIn" }],
+	// 			})
+	// 		);
+	// 	}, 500);
+	// }, []);
 
 	return (
 		<>
@@ -30,7 +30,11 @@ const Splash = (props) => {
 				<Image
 					source={splashScreen.genieLogo}
 					resizeMode="contain"
-					style={{ alignSelf: "center" }}
+					style={{ 
+						alignSelf: "center", 
+						width: '80%', // Adjust width to fit mobile screens
+						maxHeight: 200, // Set a max height to prevent overflow
+					}}
 				/>
 				<Image
 					source={splashScreen.spinner}
