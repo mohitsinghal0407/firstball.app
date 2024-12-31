@@ -12,18 +12,16 @@ import { CommonActions } from "@react-navigation/native";
 
 const Splash = (props) => {
 	let timeoutScreen;
-
-	// useEffect(() => {
-	// 	timeoutScreen = setTimeout(() => {
-	// 		props.navigation.dispatch(
-	// 			CommonActions.reset({
-	// 				index: 1,
-	// 				routes: [{ name: "SignIn" }],
-	// 			})
-	// 		);
-	// 	}, 500);
-	// }, []);
-
+	useEffect(() => {
+		timeoutScreen = setTimeout(() => {
+			props.navigation.dispatch(
+				CommonActions.reset({
+					index: 1,
+					routes: [{ name: "SignIn" }],
+				})
+			);
+		}, 500);
+	}, []);
 	return (
 		<>
 			<Container>
