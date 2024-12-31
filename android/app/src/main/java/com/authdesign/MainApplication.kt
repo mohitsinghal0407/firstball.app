@@ -1,4 +1,4 @@
-package com.authdesign
+package com.firstballapp
 
 import android.app.Application
 import com.facebook.react.PackageList

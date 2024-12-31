@@ -1,4 +1,4 @@
-package com.authdesign
+package com.firstballapp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
