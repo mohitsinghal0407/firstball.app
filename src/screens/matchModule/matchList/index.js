@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   refreshButton: {
     position: "absolute", // Ensures the button is always on the screen
-    bottom: 20, // Positioned 20px above the screen bottom
+    bottom: 50, // Positioned 20px above the screen bottom
     right: 20, // Positioned 20px from the screen's right edge
     backgroundColor: Color.primaryBlue,
     padding: 15,

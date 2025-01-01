@@ -2,6 +2,7 @@ const production = false;
 const appVersion = "v2";
 const appName = "FirstBall";
 
+const siteUrl = "https://firstball.in";
 const liveHost = "https://api.firstball.in/api/v1";
 const testHost = "https://api.firstball.in/api/v1";
 // const testHost = "http://localhost:3000/api/v1";
@@ -40,6 +41,7 @@ export class Config {
 	};
 
 	static baseUrl = production ? liveHost : testHost;
+	static siteUrl = siteUrl;
 	static livekitServerUrl = livekitServerUrl;
 	static errorMessage = errorMessage;
 }

@@ -1,7 +1,6 @@
 import React from "react";
 import {View, Text, Image} from "react-native";
 import Container from "../../components/container";
-import ScreenLoader from "../../components/screenLoader";
 import {Color} from "../../theme/colors";
 import {Fonts} from "../../theme/fonts";
 import {CommonStyle} from "../../theme/style";
