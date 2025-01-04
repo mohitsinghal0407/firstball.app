@@ -134,7 +134,7 @@ const MatchList = ({ navigation, route }) => {
               },
             ]}
           >
-            Upcoming Matches
+           We apologize for the interruption in the match, we will fix it as soon as possible , we will fix it very soon  Upcoming Matches
           </Text>
           
           <UpcomingMatchCard />
