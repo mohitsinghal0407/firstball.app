@@ -10,8 +10,7 @@ import apiRoutes from '../../../apis/apiRoutes';
 import { showErrorMessage } from '../../../utils/helpers';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Config } from '../../../config';
-
-const livekitServerUrl = Config.livekitServerUrl;
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MatchStream = ({ route, navigation }) => {
   const { matchId } = route.params;
@@ -23,7 +22,31 @@ const MatchStream = ({ route, navigation }) => {
   const [liveMatches, setLiveMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [windowDimensions, setWindowDimensions] = useState(Dimensions.get('window'));
+  const [settings, setSettings] = useState({ showPrevNextIcon: true }); // Default settings
+  const [livekitServerUrl, setLivekitServerUrl] = useState(null); // State for livekitServerUrl
 
+  // Fetch settings from storage
+  const fetchSettings = async () => {
+    try {
+      const storedSettings = await AsyncStorage.getItem('setting_info');
+      if (storedSettings) {
+        const parsedSettings = JSON.parse(storedSettings);
+        setSettings(parsedSettings);
+        console.log("Parsed Settings: ", parsedSettings.matchStreamUrl);
+        if (parsedSettings.matchStreamUrl && parsedSettings.matchStreamUrl !== null) {
+          setLivekitServerUrl(parsedSettings.matchStreamUrl);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings(); // Fetch settings on component mount
+  }, []);
+
+  
   const startAudioSession = async () => {
     await AudioSession.startAudioSession();
   };
@@ -34,10 +57,11 @@ const MatchStream = ({ route, navigation }) => {
     StatusBar.setHidden(true);
     Orientation.lockToLandscape();
     KeepAwake.activate(); // Keep the screen awake when component mounts
+    
     // Clean up function
     return () => {
       StatusBar.setHidden(false);
-      Orientation.unlockAllOrientations();
+      Orientation.lockToPortrait();
       KeepAwake.deactivate(); 
       AudioSession.stopAudioSession();
       // Ensure proper cleanup of LiveKit connection
@@ -48,20 +72,12 @@ const MatchStream = ({ route, navigation }) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   let start = async () => {
-  //     await AudioSession.startAudioSession();
-  //   };
-
-  //   start();
-  //   return () => {
-  //     AudioSession.stopAudioSession();
-  //   };
-  // }, []);
-
   // Add navigation listener for cleanup
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', () => {
+      StatusBar.setHidden(false);
+      Orientation.lockToPortrait();
+      KeepAwake.deactivate();
       if (roomInstance) {
         roomInstance.disconnect();
         setRoomInstance(null);
@@ -150,6 +166,10 @@ const MatchStream = ({ route, navigation }) => {
     };
   }, [matchId]);
 
+  // useEffect(() => {
+  //   getNavigationSetting();
+  // }, []);
+
   // Handle LiveKit connection
   const handleConnected = (room) => {
     setIsConnected(true);
@@ -215,25 +235,27 @@ const MatchStream = ({ route, navigation }) => {
         </View>
 
         <RoomView isConnected={isConnected} windowDimensions={windowDimensions} />
-
+        {settings.showPrevNextIcon && (
         <View style={styles.navigationControls}>
-          <TouchableOpacity 
-            style={[styles.navButton, currentMatchIndex === 0 && styles.disabledButton]} 
-            onPress={handlePrevMatch}
-            disabled={currentMatchIndex === 0}
-          >
-            <Ionicons name="chevron-back" size={30} color="rgba(255,255,255,0.7)" />
-          </TouchableOpacity>
+          
+              <TouchableOpacity 
+                style={[styles.navButton, currentMatchIndex === 0 && styles.disabledButton]} 
+                onPress={handlePrevMatch}
+                disabled={currentMatchIndex === 0}
+              >
+                <Ionicons name="chevron-back" size={30} color="rgba(255,255,255,0.7)" />
+              </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.navButton, currentMatchIndex === liveMatches.length - 1 && styles.disabledButton]}
-            onPress={handleNextMatch}
-            disabled={currentMatchIndex === liveMatches.length - 1}
-          >
-            <Ionicons name="chevron-forward" size={30} color="rgba(255,255,255,0.7)" />
-          </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.navButton, currentMatchIndex === liveMatches.length - 1 && styles.disabledButton]}
+                onPress={handleNextMatch}
+                disabled={currentMatchIndex === liveMatches.length - 1}
+              >
+                <Ionicons name="chevron-forward" size={30} color="rgba(255,255,255,0.7)" />
+              </TouchableOpacity>
+            
         </View>
-        
+        )}
       </LiveKitRoom>
     </View>
   );
@@ -241,9 +263,7 @@ const MatchStream = ({ route, navigation }) => {
 
 const RoomView = ({ isConnected, windowDimensions }) => {
   const tracks = useTracks([
-    // { source: Track.Source.Camera },
     { source: Track.Source.ScreenShare },
-    // { source: Track.Source.Microphone },
   ]);
 
   const renderTrack = ({ item }) => {
@@ -251,7 +271,6 @@ const RoomView = ({ isConnected, windowDimensions }) => {
       isTrackReference(item) &&
       (item.publication?.kind === "video" || item.source === Track.Source.ScreenShare)
     ) {
-      // Maintain aspect ratio for the video
       const aspectRatio = windowDimensions.width / windowDimensions.height;
 
       return (

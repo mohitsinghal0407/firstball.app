@@ -5,6 +5,7 @@ const appName = "FirstBall";
 const siteUrl = "https://firstball.in";
 const liveHost = "https://api.firstball.in/api/v1";
 const testHost = "https://api.firstball.in/api/v1";
+const playStoreUrl = "https://play.google.com/store/apps/details?id=com.firstballapp";
 // const testHost = "http://localhost:3000/api/v1";
 
 const livekitServerUrl = 'wss://stream.firstball.in';
@@ -44,4 +45,5 @@ export class Config {
 	static siteUrl = siteUrl;
 	static livekitServerUrl = livekitServerUrl;
 	static errorMessage = errorMessage;
+	static playStoreUrl = playStoreUrl;
 }
