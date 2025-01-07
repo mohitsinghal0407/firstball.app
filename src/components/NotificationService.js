@@ -29,6 +29,22 @@ export function createNotificationChannel() {
   );
 }
 
+// Generate FCM Token
+export async function getFCMToken() {
+  try {
+    const fcmToken = await messaging().getToken();
+    if (fcmToken) {
+      console.log('FCM Token:', fcmToken);
+      // Subscribe to all users topic
+      await messaging().subscribeToTopic('all_users');
+      return fcmToken;
+    }
+  } catch (error) {
+    console.error('Error getting FCM token:', error);
+    return null;
+  }
+}
+
 // Handle Notifications
 export function handleForegroundNotifications() {
   return messaging().onMessage(async (remoteMessage) => {
@@ -66,11 +82,12 @@ export async function initializePushNotifications() {
 
   if (permissionGranted) {
     createNotificationChannel();
+    const fcmToken = await getFCMToken();
     handleForegroundNotifications();
     handleBackgroundNotifications();
     handleAppOpenedFromNotification();
-    return true;
+    return fcmToken;
   }
 
-  return false;
+  return null;
 }
