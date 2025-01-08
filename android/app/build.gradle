@@ -80,8 +80,8 @@ android {
         applicationId "com.firstballapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "2.4"
+        versionCode 7
+        versionName "2.5"
     }
     signingConfigs {
         release {
@@ -125,12 +125,9 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
     implementation platform('com.google.firebase:firebase-bom:33.7.0') // Firebase BoM (Bill of Materials)
-    implementation 'com.google.firebase:firebase-analytics'  // Example: Firebase Analytics
-
-    // Exclude Ad and Analytics-related libraries
-    implementation('com.google.firebase:firebase-messaging') {
-        exclude group: 'com.google.firebase', module: 'firebase-analytics'
-    }
+    // implementation 'com.google.firebase:firebase-analytics'  // Example: Firebase Analytics
+    // Firebase Messaging for push notifications
+    implementation 'com.google.firebase:firebase-messaging'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
