@@ -1,5 +1,5 @@
 const production = false;
-const appVersion = "v5";
+const appVersion = "v8";
 const appName = "FirstBall";
 
 const siteUrl = "https://firstball.in";

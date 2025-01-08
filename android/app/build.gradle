@@ -80,8 +80,8 @@ android {
         applicationId "com.firstballapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "2.5"
+        versionCode 8
+        versionName "2.6"
     }
     signingConfigs {
         release {
