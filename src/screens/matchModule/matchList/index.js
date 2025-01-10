@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback  } from "react";
 import {
   Text,
   ScrollView,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import MainContainer from "../../../components/mainContainer";
 import { Color } from "../../../theme/colors";
 import LiveMatchCard from "../../../components/match/liveMatchCard";
@@ -45,6 +46,13 @@ const MatchList = ({ navigation }) => {
     setRefreshing(true);
     fetchMatches();
   };
+
+  // Use useFocusEffect to re-fetch data when the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchMatches(); // Fetch matches whenever the screen gains focus
+    }, [])
+  );
 
   // Fetch matches on component mount
   useEffect(() => {

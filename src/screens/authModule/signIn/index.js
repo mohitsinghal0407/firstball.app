@@ -9,6 +9,7 @@ import apiRoutes from "../../../apis/apiRoutes";
 import axiosInstance from "../../../apis";
 import DeviceInfo from 'react-native-device-info';
 import { Config } from "../../../config";
+import { UpdateAppScreen } from "../../../components/UpdateScreen";
 
 const SignIn = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
@@ -23,29 +24,17 @@ const SignIn = ({ navigation }) => {
             // Verify if token is valid by making an API call
             await AsyncStorage.clear();
             const deviceId = await DeviceInfo.getUniqueId();
-            const appVersion = Config.appVersion;
-            const response = await axiosInstance.post(apiRoutes.registerAndLoginForMobileApp, { mode: 'mobile', username: deviceId, version: appVersion });
+            const response = await axiosInstance.post(apiRoutes.registerAndLoginForMobileApp, { mode: 'mobile', username: deviceId });
             if (response.data.success) {
 				setIsLoading(false);
-                if(response.data.versionMatched) {
-                    await AsyncStorage.setItem("access_token", response.data.token);
-                    await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
-                    navigation.dispatch(
-                        CommonActions.reset({
-                            index: 1,
-                            routes: [{ name: "MatchList" }],
-                        })
-                    );
-                }
-                else {
-                    await AsyncStorage.setItem("app_download_url", response.data.appDownloadUrl);
-                    navigation.dispatch(
-                        CommonActions.reset({
-                            index: 1,
-                            routes: [{ name: "VersionMisMatched" }],
-                        })
-                    );
-                }
+                await AsyncStorage.setItem("access_token", response.data.token);
+                await AsyncStorage.setItem("user_info", JSON.stringify(response.data.user));
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [{ name: "MatchList" }],
+                    })
+                );
             } else {
                 // If token is invalid, remove it
                 await AsyncStorage.removeItem("access_token");

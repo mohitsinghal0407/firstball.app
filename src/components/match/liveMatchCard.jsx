@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { CommonStyle } from "../../theme/style";
 import { Color } from "../../theme/colors";
 import axiosInstance from "../../apis";
 import apiRoutes from "../../apis/apiRoutes";
 import { showErrorMessage } from "../../utils/helpers";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LiveMatchCard = () => {
   const [liveMatches, setLiveMatches] = useState([]);
@@ -25,6 +25,7 @@ const LiveMatchCard = () => {
     try {
       const response = await axiosInstance.get(apiRoutes.matches);
       if (response.data.success) {
+        console.log("Matches Response: ", response.data);
         const live = response.data.matches.filter(
           (match) => match.status === "live"
         );
@@ -46,6 +47,7 @@ const LiveMatchCard = () => {
   const fetchSettingInfo = async () => {
     try {
       const response = await axiosInstance.get(apiRoutes.settings);
+      await AsyncStorage.setItem("setting_info", JSON.stringify(response.data.settingInfo[0]));
       if (response.data.success) {
         const live = response.data.settingInfo[0].matchStreaming;
         setIsMatchStreaming(live);
@@ -64,7 +66,7 @@ const LiveMatchCard = () => {
     <TouchableOpacity
       key={match._id}
       style={styles.matchCard}
-      onPress={() => navigation.navigate("MatchStream", { matchId: match._id })}
+      onPress={isMatchStreaming ? () => navigation.navigate("MatchStream", { matchId: match._id }) : undefined}
     >
       <View style={styles.matchRow}>
         <Text style={styles.matchTitle}>
