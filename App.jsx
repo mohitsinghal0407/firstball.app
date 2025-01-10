@@ -20,19 +20,24 @@ export default function App() {
 
     if (granted) {
       initializePushNotifications();
-      handleVersionCheck(); // Perform version check after permissions are granted
-    } else {
-      setAppState('permissionsDenied'); // Show the PermissionScreen
-    }
+      // handleVersionCheck(); // Perform version check after permissions are granted
+    } 
+    // else {
+    //   setAppState('permissionsDenied'); // Show the PermissionScreen
+    // }
   };
 
   const handleVersionCheck = async () => {
     try {
       const response = await axiosInstance.get(apiRoutes.settings);
       if(response.data.success){
-        if (Config.appVersion != response.data.settingInfo[0].appVersion) {
-          setAppState('updateRequired'); // Show update modal
-          setAppUrl(response.data.settingInfo.appUrl); // Set app URL from API response
+        if (response.data.settingInfo[0].updateAppRequired) {
+          if (Config.appVersion != response.data.settingInfo[0].appVersion) {
+            setAppState('updateRequired'); // Show update modal
+            setAppUrl(response.data.settingInfo.appUrl); // Set app URL from API response
+          } else {
+            setAppState('ready'); // Proceed to main app
+          }
         } else {
           setAppState('ready'); // Proceed to main app
         }
@@ -54,6 +59,7 @@ export default function App() {
 
     if (appState === 'checking') {
       handlePermissionCheck();
+      handleVersionCheck();
     }
 
     return () => {

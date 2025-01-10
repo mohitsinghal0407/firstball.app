@@ -25,7 +25,6 @@ const LiveMatchCard = () => {
     try {
       const response = await axiosInstance.get(apiRoutes.matches);
       if (response.data.success) {
-        console.log("Matches Response: ", response.data);
         const live = response.data.matches.filter(
           (match) => match.status === "live"
         );

@@ -32,13 +32,12 @@ const MatchStream = ({ route, navigation }) => {
       if (storedSettings) {
         const parsedSettings = JSON.parse(storedSettings);
         setSettings(parsedSettings);
-        console.log("Parsed Settings: ", parsedSettings.matchStreamUrl);
         if (parsedSettings.matchStreamUrl && parsedSettings.matchStreamUrl !== null) {
           setLivekitServerUrl(parsedSettings.matchStreamUrl);
         }
       }
     } catch (error) {
-      console.error('Error fetching settings:', error);
+      setLivekitServerUrl(Config.livekitServerUrl);
     }
   };
 
@@ -262,9 +261,11 @@ const MatchStream = ({ route, navigation }) => {
 };
 
 const RoomView = ({ isConnected, windowDimensions }) => {
-  const tracks = useTracks([
-    { source: Track.Source.ScreenShare },
-  ]);
+  const tracks = useTracks(
+    [{ source: Track.Source.ScreenShare, withPlaceholder: false }],
+    { onlySubscribed: true }
+  );
+
 
   const renderTrack = ({ item }) => {
     if (
