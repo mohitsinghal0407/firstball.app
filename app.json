@@ -1,4 +1,7 @@
 {
   "name": "AuthDesign",
-  "displayName": "AuthDesign"
+  "displayName": "AuthDesign",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-5399334075306612~6842004890"
+  }
 }

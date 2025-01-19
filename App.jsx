@@ -1,19 +1,78 @@
-import React, { useEffect, useState } from 'react';
-import { Provider } from 'react-redux';
+import React, {useEffect, useState} from 'react';
+import {Provider} from 'react-redux';
 import store from './src/store';
 import Navigation from './src/routes/navigation';
-import { initializePushNotifications, requestUserPermission } from './src/components/NotificationService';
-import { AppState, ActivityIndicator, StyleSheet, View } from 'react-native';
-import { PermissionScreen } from './src/components/PermissionScreen';
+import {
+  initializePushNotifications,
+  requestUserPermission,
+} from './src/components/NotificationService';
+import {AppState, ActivityIndicator, StyleSheet, View} from 'react-native';
+import {PermissionScreen} from './src/components/PermissionScreen';
 import axiosInstance from './src/apis';
 import apiRoutes from './src/apis/apiRoutes';
-import { Config } from './src/config';
-import { UpdateScreen } from './src/components/UpdateScreen';
+import {Config} from './src/config';
+import {UpdateScreen} from './src/components/UpdateScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AppOpenAd, TestIds, AdEventType} from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__
+  ? TestIds.APP_OPEN
+  : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy';
+
+const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
+  keywords: ['fashion', 'clothing'],
+});
 
 export default function App() {
   const [appState, setAppState] = useState('checking'); // States: 'checking', 'permissionsDenied', 'updateRequired', 'ready'
   const [appUrl, setAppUrl] = useState('');
+  const [isAdLoaded, setIsAdLoaded] = useState(false);
+
+  useEffect(() => {
+    const handleAppStateChange = nextAppState => {
+      if (nextAppState === 'active' && isAdLoaded) {
+        appOpenAd.show();
+        setIsAdLoaded(false);
+      }
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isAdLoaded]);
+
+  useEffect(() => {
+    const loadAd = () => {
+      appOpenAd.load();
+    };
+
+    const adEventListener = appOpenAd.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setIsAdLoaded(true);
+      },
+    );
+
+    const adErrorListener = appOpenAd.addAdEventListener(
+      AdEventType.ERROR,
+      error => {
+        console.error('App Open Ad Error:', error);
+        setIsAdLoaded(false);
+      },
+    );
+
+    loadAd();
+
+    return () => {
+      adEventListener();
+      adErrorListener();
+    };
+  }, []);
 
   const handlePermissionCheck = async () => {
     const granted = await requestUserPermission();
@@ -21,7 +80,7 @@ export default function App() {
     if (granted) {
       initializePushNotifications();
       // handleVersionCheck(); // Perform version check after permissions are granted
-    } 
+    }
     // else {
     //   setAppState('permissionsDenied'); // Show the PermissionScreen
     // }
@@ -30,7 +89,7 @@ export default function App() {
   const handleVersionCheck = async () => {
     try {
       const response = await axiosInstance.get(apiRoutes.settings);
-      if(response.data.success){
+      if (response.data.success) {
         if (response.data.settingInfo[0].updateAppRequired) {
           if (Config.appVersion != response.data.settingInfo[0].appVersion) {
             setAppState('updateRequired'); // Show update modal
@@ -49,13 +108,16 @@ export default function App() {
   };
 
   useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
+    const handleAppStateChange = nextAppState => {
       if (nextAppState === 'active' && appState === 'permissionsDenied') {
         setAppState('checking');
       }
     };
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
 
     if (appState === 'checking') {
       handlePermissionCheck();
@@ -80,7 +142,7 @@ export default function App() {
   }
 
   if (appState === 'updateRequired') {
-      return <UpdateScreen visible={true} appUrl={appUrl} />;
+    return <UpdateScreen visible={true} appUrl={appUrl} />;
   }
 
   return (
