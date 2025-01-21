@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 // import {
 //   AdMobNativeAdsManager,
@@ -10,26 +10,42 @@ import {View, Text, StyleSheet} from 'react-native';
 //   AdMobNativeAdCallToAction,
 // } from 'react-native-admob-native-ads';
 
-const adUnitId = __DEV__
-  ? 'ca-app-pub-3940256099942544/2247696110' // Test ID
-  : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy';
+import NativeAdView, {
+  HeadlineView,
+  ImageView,
+  TaglineView,
+} from 'react-native-admob-native-ads';
 
 // const adsManager = new AdMobNativeAdsManager(adUnitId);
 
 export default function NativeAdComponent() {
+  const nativeAdViewRef = useRef();
+
+  useEffect(() => {
+    nativeAdViewRef.current?.loadAd();
+  }, []);
+
   return (
-    // <AdMobNativeAdView adsManager={adsManager} style={styles.nativeAdView}>
-    //   <View style={styles.adContainer}>
-    //     <AdMobNativeAdBadge style={styles.adBadge} />
-    //     <AdMobNativeMediaView style={styles.mediaView} />
-    //     <View style={styles.textContainer}>
-    //       <AdMobNativeAdHeadline style={styles.headline} />
-    //       <AdMobNativeAdBody style={styles.body} />
-    //       <AdMobNativeAdCallToAction style={styles.callToAction} />
-    //     </View>
-    //   </View>
-    // </AdMobNativeAdView>
-    <></>
+    <NativeAdView ref={nativeAdViewRef} repository="imageAd">
+      <ImageView
+        style={{
+          width: '100%',
+          height: 250,
+        }}
+      />
+      <HeadlineView
+        style={{
+          fontWeight: 'bold',
+          fontSize: 13,
+        }}
+      />
+      <TaglineView
+        style={{
+          fontWeight: 'bold',
+          fontSize: 12,
+        }}
+      />
+    </NativeAdView>
   );
 }
 

@@ -19,7 +19,7 @@ import {
   TestIds,
 } from 'react-native-google-mobile-ads';
 
-const adUnitId = "ca-app-pub-5399334075306612~6842004890"
+const adUnitId = 'ca-app-pub-5399334075306612/2040308194';
 // const adUnitId = __DEV__
 //   ? TestIds.REWARDED
 //   : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy';

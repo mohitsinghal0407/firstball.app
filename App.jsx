@@ -14,13 +14,29 @@ import {Config} from './src/config';
 import {UpdateScreen} from './src/components/UpdateScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppOpenAd, TestIds, AdEventType} from 'react-native-google-mobile-ads';
+import {AdManager} from 'react-native-admob-native-ads';
 
-const adUnitId = __DEV__
-  ? TestIds.APP_OPEN
-  : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy';
+// const adUnitId = __DEV__
+//   ? TestIds.APP_OPEN
+//   : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy';
+const adUnitId = 'ca-app-pub-5399334075306612/2045532268';
 
 const appOpenAd = AppOpenAd.createForAdRequest(adUnitId, {
   keywords: ['fashion', 'clothing'],
+});
+
+AdManager.registerRepository({
+  name: 'imageAd',
+  adUnitId: 'ca-app-pub-3940256099942544/2247696110',
+  numOfAds: 3,
+  nonPersonalizedAdsOnly: false,
+  videoOptions: {
+    mute: false,
+  },
+  expirationPeriod: 3600000, // in milliseconds (optional)
+  mediationEnabled: false,
+}).then(result => {
+  console.log('registered: ', result);
 });
 
 export default function App() {
